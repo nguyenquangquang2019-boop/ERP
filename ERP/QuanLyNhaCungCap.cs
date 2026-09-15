@@ -85,6 +85,7 @@ namespace ERP
 
         private void LoadDataNhaCungCap()
         {
+<<<<<<< HEAD
             // Lấy đúng các cột có trong bảng NhaCungCap của bạn
             string query = @"SELECT ID_NCC, TenNCC, DiaChi, SDT, 
                             ISNULL(TenChungNhan, N'Không có') AS TenChungNhan, 
@@ -92,6 +93,9 @@ namespace ERP
                             NgayCap, NgayHetHan 
                      FROM NhaCungCap 
                      ORDER BY ID_NCC DESC";
+=======
+            string query = "SELECT ID_NCC, TenNCC, DiaChi, SDT, ISNULL(TenChungNhan, N'Không có') AS TenChungNhan FROM NhaCungCap ORDER BY ID_NCC DESC";
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -129,6 +133,7 @@ namespace ERP
         {
             if (dtNCC == null) return;
 
+<<<<<<< HEAD
             // Lấy từ khóa tìm kiếm và chống lỗi cú pháp SQL injection cho DataView RowFilter
             string keyword = txtSearch.Text.Trim().Replace("'", "''");
             if (keyword == "🔍 Tìm kiếm theo Mã, Tên nhà cung cấp, SĐT..." || string.IsNullOrEmpty(keyword))
@@ -148,6 +153,20 @@ namespace ERP
                 dv.RowFilter = ""; // Hiển thị toàn bộ nếu không nhập từ khóa
             }
 
+=======
+            string keyword = txtSearch.Text.Trim().Replace("'", "''");
+            if (keyword == "🔍 Tìm kiếm theo Mã, Tên nhà cung cấp, SĐT...") keyword = "";
+
+            DataView dv = dtNCC.DefaultView;
+            string filter = "1=1";
+
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                filter += $" AND (ID_NCC LIKE '%{keyword}%' OR TenNCC LIKE '%{keyword}%' OR SDT LIKE '%{keyword}%' OR DiaChi LIKE '%{keyword}%')";
+            }
+
+            dv.RowFilter = filter;
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
             dgvData.DataSource = dv;
         }
 
@@ -176,6 +195,7 @@ namespace ERP
         private void btnAdd_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Chức năng thêm Nhà cung cấp mới!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+<<<<<<< HEAD
             FrmThemNhaCungCap frmThem = new FrmThemNhaCungCap();
 
             // Nếu thêm dữ liệu thành công (DialogResult.OK), hệ thống sẽ tự động load lại bảng dữ liệu
@@ -183,6 +203,9 @@ namespace ERP
             {
                 LoadDataNhaCungCap();
             }
+=======
+            // Gọi Form Thêm NCC tại đây nếu có
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
         }
 
         private void btnEdit_Click(object sender, EventArgs e)
@@ -190,6 +213,7 @@ namespace ERP
             if (dgvData.CurrentRow != null)
             {
                 string idNCC = dgvData.CurrentRow.Cells["colID_NCC"].Value?.ToString();
+<<<<<<< HEAD
 
                 // Kiểm tra xem mã lấy ra có rỗng không trước khi mở form
                 if (!string.IsNullOrEmpty(idNCC))
@@ -203,11 +227,20 @@ namespace ERP
                         LoadDataNhaCungCap(); // Thay tên hàm load dữ liệu danh sách NCC của bạn vào đây
                     }
                 }
+=======
+                MessageBox.Show($"Chỉnh sửa nhà cung cấp: {idNCC}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Gọi Form Sửa NCC tại đây nếu có
+            }
+            else
+            {
+                MessageBox.Show("Vui lòng chọn Nhà cung cấp cần chỉnh sửa!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
             }
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
+<<<<<<< HEAD
             // 1. Kiểm tra xem người dùng đã chọn dòng nào trên bảng chưa
             if (dgvData.CurrentRow != null)
             {
@@ -226,6 +259,15 @@ namespace ERP
                 if (result == DialogResult.Yes)
                 {
                     string connectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=ERP_BanHang_Full;Integrated Security=True";
+=======
+            if (dgvData.CurrentRow != null)
+            {
+                string idNCC = dgvData.CurrentRow.Cells["colID_NCC"].Value?.ToString();
+
+                DialogResult dr = MessageBox.Show($"Bạn có chắc chắn muốn xóa Nhà cung cấp {idNCC}?", "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (dr == DialogResult.Yes)
+                {
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
                     string query = "DELETE FROM NhaCungCap WHERE ID_NCC = @ID_NCC";
 
                     using (SqlConnection conn = new SqlConnection(connectionString))
@@ -235,6 +277,7 @@ namespace ERP
                             conn.Open();
                             SqlCommand cmd = new SqlCommand(query, conn);
                             cmd.Parameters.AddWithValue("@ID_NCC", idNCC);
+<<<<<<< HEAD
 
                             int rowsAffected = cmd.ExecuteNonQuery();
 
@@ -265,13 +308,27 @@ namespace ERP
                         catch (Exception ex)
                         {
                             MessageBox.Show("Đã xảy ra lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+=======
+                            cmd.ExecuteNonQuery();
+
+                            MessageBox.Show("Xóa nhà cung cấp thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            LoadDataNhaCungCap();
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Không thể xóa nhà cung cấp này do có liên kết sản phẩm: " + ex.Message, "Lỗi SQL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
                         }
                     }
                 }
             }
             else
             {
+<<<<<<< HEAD
                 MessageBox.Show("Vui lòng chọn Nhà cung cấp cần xóa trên bảng!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+=======
+                MessageBox.Show("Vui lòng chọn Nhà cung cấp cần xóa!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
             }
         }
 

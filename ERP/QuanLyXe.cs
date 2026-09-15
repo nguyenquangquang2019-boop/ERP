@@ -197,6 +197,7 @@ namespace ERP
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
+<<<<<<< HEAD
           
             MessageBox.Show("Chức năng thêm Nhà cung cấp mới!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             FrmThemPhuongTien frmThem = new FrmThemPhuongTien();
@@ -206,6 +207,9 @@ namespace ERP
             {
                 LoadDataXe();
             }
+=======
+            MessageBox.Show("Mở Form thêm Phương tiện mới!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
         }
 
         private void btnEdit_Click(object sender, EventArgs e)
@@ -213,6 +217,7 @@ namespace ERP
             if (dgvData.CurrentRow != null)
             {
                 string bienSo = dgvData.CurrentRow.Cells["colBienSoXe"].Value?.ToString();
+<<<<<<< HEAD
 
                 if (!string.IsNullOrEmpty(bienSo))
                 {
@@ -226,6 +231,9 @@ namespace ERP
                         LoadDataXe();
                     }
                 }
+=======
+                MessageBox.Show($"Chỉnh sửa thông tin phương tiện biển số: {bienSo}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
             }
             else
             {
@@ -235,6 +243,7 @@ namespace ERP
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
+<<<<<<< HEAD
             // 1. Kiểm tra xem người dùng đã chọn dòng nào trên bảng chưa
             if (dgvData.CurrentRow != null)
             {
@@ -253,6 +262,16 @@ namespace ERP
                 if (result == DialogResult.Yes)
                 {
                     string connectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=ERP_BanHang_Full;Integrated Security=True";
+=======
+            if (dgvData.CurrentRow != null)
+            {
+                string bienSo = dgvData.CurrentRow.Cells["colBienSoXe"].Value?.ToString();
+
+                DialogResult dr = MessageBox.Show($"Bạn có chắc chắn muốn xóa phương tiện biển số [{bienSo}]?", "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (dr == DialogResult.Yes)
+                {
+                    // Truy vấn xóa từ bảng PhuongTien
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
                     string query = "DELETE FROM PhuongTien WHERE BienSoXe = @BienSoXe";
 
                     using (SqlConnection conn = new SqlConnection(connectionString))
@@ -261,6 +280,7 @@ namespace ERP
                         {
                             conn.Open();
                             SqlCommand cmd = new SqlCommand(query, conn);
+<<<<<<< HEAD
                             cmd.Parameters.AddWithValue("@BienSoXe", bienSoXe);
 
                             int rowsAffected = cmd.ExecuteNonQuery();
@@ -293,13 +313,28 @@ namespace ERP
                         catch (Exception ex)
                         {
                             MessageBox.Show("Đã xảy ra lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+=======
+                            cmd.Parameters.AddWithValue("@BienSoXe", bienSo);
+                            cmd.ExecuteNonQuery();
+
+                            MessageBox.Show("Xóa phương tiện thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            LoadDataXe();
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Không thể xóa phương tiện này do đang gắn liền với các Đơn vận chuyển: " + ex.Message, "Lỗi SQL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
                         }
                     }
                 }
             }
             else
             {
+<<<<<<< HEAD
                 MessageBox.Show("Vui lòng chọn phương tiện cần xóa trên bảng!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+=======
+                MessageBox.Show("Vui lòng chọn xe cần xóa!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
             }
         }
 

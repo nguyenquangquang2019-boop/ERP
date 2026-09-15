@@ -164,6 +164,7 @@ namespace ERP
         private void btnAdd_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Mở Form thêm Điểm vận chuyển mới!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+<<<<<<< HEAD
             FrmThemDiemVanChuyen frmThem = new FrmThemDiemVanChuyen();
 
             // Nếu thêm dữ liệu thành công (DialogResult.OK), hệ thống sẽ tự động load lại bảng dữ liệu
@@ -171,6 +172,8 @@ namespace ERP
             {
                 LoadDataDiemVanChuyen();
             }
+=======
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
         }
 
         private void btnEdit_Click(object sender, EventArgs e)
@@ -178,6 +181,7 @@ namespace ERP
             if (dgvData.CurrentRow != null)
             {
                 string maDVC = dgvData.CurrentRow.Cells["colMaDVC"].Value?.ToString();
+<<<<<<< HEAD
 
                 if (!string.IsNullOrEmpty(maDVC))
                 {
@@ -191,6 +195,9 @@ namespace ERP
                         LoadDataDiemVanChuyen();
                     }
                 }
+=======
+                MessageBox.Show($"Chỉnh sửa điểm vận chuyển: {maDVC}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
             }
             else
             {
@@ -200,6 +207,7 @@ namespace ERP
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
+<<<<<<< HEAD
             // 1. Kiểm tra xem người dùng đã chọn dòng nào trên bảng chưa
             if (dgvData.CurrentRow != null)
             {
@@ -218,6 +226,15 @@ namespace ERP
                 if (result == DialogResult.Yes)
                 {
                     string connectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=ERP_BanHang_Full;Integrated Security=True";
+=======
+            if (dgvData.CurrentRow != null)
+            {
+                string maDVC = dgvData.CurrentRow.Cells["colMaDVC"].Value?.ToString();
+
+                DialogResult dr = MessageBox.Show($"Bạn có chắc chắn muốn xóa Điểm vận chuyển [{maDVC}]?", "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (dr == DialogResult.Yes)
+                {
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
                     string query = "DELETE FROM DiemVanChuyen WHERE MaDVC = @MaDVC";
 
                     using (SqlConnection conn = new SqlConnection(connectionString))
@@ -227,6 +244,7 @@ namespace ERP
                             conn.Open();
                             SqlCommand cmd = new SqlCommand(query, conn);
                             cmd.Parameters.AddWithValue("@MaDVC", maDVC);
+<<<<<<< HEAD
 
                             int rowsAffected = cmd.ExecuteNonQuery();
 
@@ -257,13 +275,27 @@ namespace ERP
                         catch (Exception ex)
                         {
                             MessageBox.Show("Đã xảy ra lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+=======
+                            cmd.ExecuteNonQuery();
+
+                            MessageBox.Show("Xóa điểm vận chuyển thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            LoadDataDiemVanChuyen();
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Không thể xóa điểm này do đang được sử dụng ở đơn vận chuyển: " + ex.Message, "Lỗi SQL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
                         }
                     }
                 }
             }
             else
             {
+<<<<<<< HEAD
                 MessageBox.Show("Vui lòng chọn Điểm vận chuyển cần xóa trên bảng!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+=======
+                MessageBox.Show("Vui lòng chọn Điểm vận chuyển cần xóa!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
             }
         }
 

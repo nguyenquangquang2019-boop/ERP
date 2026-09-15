@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
     <Compile Include="FrmSuaDiemVanChuyen.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -82,6 +83,8 @@
     <Compile Include="FrmThemPhuongTien.Designer.cs">
       <DependentUpon>FrmThemPhuongTien.cs</DependentUpon>
     </Compile>
+=======
+>>>>>>> eed68e83fb15d88b2b64622e9a22619d58157bd4
     <Compile Include="QuanLyDonVanChuyen.cs">
       <SubType>Form</SubType>
     </Compile>
