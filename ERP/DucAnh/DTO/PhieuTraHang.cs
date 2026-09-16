@@ -9,5 +9,6 @@ namespace ERP.DucAnh.DTO
         public string MaDVC { get; set; }
         public string ID_CTYC { get; set; }
         public string TrangThai { get; set; }
+        public string BienSoXe { get; set; }
     }
 }

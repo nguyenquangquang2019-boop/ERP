@@ -1,5 +1,5 @@
-using System.Data;
-using System.Data.SqlClient;
+﻿using System.Data;
+using Npgsql;
 
 namespace ERP.DucAnh.DAL
 {
@@ -25,8 +25,8 @@ namespace ERP.DucAnh.DAL
                 INNER JOIN KhachHang KH ON YC.ID_KH = KH.ID_KH
                 ORDER BY PT.ID_PhieuTra DESC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlDataAdapter adapter = new SqlDataAdapter(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlDataAdapter adapter = new NpgsqlDataAdapter(query, connection))
             {
                 DataTable result = new DataTable();
                 adapter.Fill(result);
@@ -38,8 +38,8 @@ namespace ERP.DucAnh.DAL
         {
             const string query = "UPDATE YeuCauSauBanHang SET TrangThai = @TrangThai WHERE ID_YC = @ID_YC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@TrangThai", trangThai);
                 command.Parameters.AddWithValue("@ID_YC", idYeuCau);
@@ -49,3 +49,4 @@ namespace ERP.DucAnh.DAL
         }
     }
 }
+

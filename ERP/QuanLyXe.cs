@@ -1,6 +1,6 @@
-using System;
+﻿using System;
 using System.Data;
-using System.Data.SqlClient;
+using Npgsql;
 using System.Drawing;
 using System.Windows.Forms;
 using ERP.DucAnh.DAL;
@@ -104,12 +104,12 @@ namespace ERP
             // Truy vấn lấy dữ liệu chính xác từ bảng PhuongTien
             string query = "SELECT BienSoXe, LoaiXe, TaiTrong, TenTaiXe, TrangThaiXe, KichHoat FROM PhuongTien ORDER BY BienSoXe ASC";
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    SqlDataAdapter da = new SqlDataAdapter(query, conn);
+                    NpgsqlDataAdapter da = new NpgsqlDataAdapter(query, conn);
                     dtXe = new DataTable();
                     da.Fill(dtXe);
 
@@ -252,12 +252,12 @@ namespace ERP
                 {
                     string query = "DELETE FROM PhuongTien WHERE BienSoXe = @BienSoXe";
 
-                    using (SqlConnection conn = new SqlConnection(connectionString))
+                    using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
                     {
                         try
                         {
                             conn.Open();
-                            SqlCommand cmd = new SqlCommand(query, conn);
+                            NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
                             cmd.Parameters.AddWithValue("@BienSoXe", bienSoXe);
 
                             int rowsAffected = cmd.ExecuteNonQuery();
@@ -272,10 +272,10 @@ namespace ERP
                                 MessageBox.Show("Không tìm thấy phương tiện cần xóa trong cơ sở dữ liệu.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }
-                        catch (SqlException ex)
+                        catch (PostgresException ex)
                         {
                             // Lỗi mã 547: Bị vướng khóa ngoại (Foreign Key) nếu phương tiện này đã được gán vào đơn vận chuyển hoặc bảng khác
-                            if (ex.Number == 547)
+                            if ((ex.SqlState == "23503" || ex.SqlState == "23514"))
                             {
                                 MessageBox.Show("Không thể xóa phương tiện này vì đã phát sinh dữ liệu liên quan (như đơn vận chuyển) trong hệ thống.", "Lỗi ràng buộc dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
@@ -334,3 +334,5 @@ namespace ERP
         }
     }
 }
+
+

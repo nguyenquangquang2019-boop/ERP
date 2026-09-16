@@ -1,4 +1,4 @@
-﻿namespace ERP
+namespace ERP
 {
     partial class QuanLyTraHang
     {
@@ -35,8 +35,18 @@
             this.lblHeaderTitle = new System.Windows.Forms.Label();
             this.pnlMainContent = new System.Windows.Forms.Panel();
             this.dgvData = new System.Windows.Forms.DataGridView();
+            this.colID_PhieuTra = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colNgayTra = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colMaDVC = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colBienSoXe = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colID_CTYC = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colTrangThai = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.pnlActionTool = new System.Windows.Forms.Panel();
-            this.btnApprove = new System.Windows.Forms.Button();
+            this.btnDelete = new System.Windows.Forms.Button();
+            this.btnEdit = new System.Windows.Forms.Button();
+            this.btnAdd = new System.Windows.Forms.Button();
+            this.dtpTuNgay = new System.Windows.Forms.DateTimePicker();
+            this.dtpDenNgay = new System.Windows.Forms.DateTimePicker();
             this.cmbTrangThai = new System.Windows.Forms.ComboBox();
             this.txtSearch = new System.Windows.Forms.TextBox();
             this.lblTitle = new System.Windows.Forms.Label();
@@ -253,6 +263,59 @@
             this.dgvData.AllowUserToDeleteRows = false;
             this.dgvData.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvData.BackgroundColor = System.Drawing.Color.Gainsboro;
+            this.dgvData.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.colID_PhieuTra,
+            this.colNgayTra,
+            this.colMaDVC,
+            this.colBienSoXe,
+            this.colID_CTYC,
+            this.colTrangThai});
+            
+            // colID_PhieuTra
+            this.colID_PhieuTra.DataPropertyName = "ID_PhieuTra";
+            this.colID_PhieuTra.HeaderText = "MÃ PHIẾU TRẢ";
+            this.colID_PhieuTra.Name = "colID_PhieuTra";
+            this.colID_PhieuTra.ReadOnly = true;
+            this.colID_PhieuTra.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(13, 110, 253);
+            this.colID_PhieuTra.DefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.colID_PhieuTra.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            
+            // colNgayTra
+            this.colNgayTra.DataPropertyName = "NgayTra";
+            this.colNgayTra.HeaderText = "NGÀY TRẢ";
+            this.colNgayTra.Name = "colNgayTra";
+            this.colNgayTra.ReadOnly = true;
+            this.colNgayTra.DefaultCellStyle.Format = "dd/MM/yyyy HH:mm";
+            this.colNgayTra.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            
+            // colMaDVC
+            this.colMaDVC.DataPropertyName = "MaDVC";
+            this.colMaDVC.HeaderText = "MÃ ĐIỂM VC";
+            this.colMaDVC.Name = "colMaDVC";
+            this.colMaDVC.ReadOnly = true;
+            this.colMaDVC.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            
+            // colBienSoXe
+            this.colBienSoXe.DataPropertyName = "BienSoXe";
+            this.colBienSoXe.HeaderText = "BIỂN SỐ XE";
+            this.colBienSoXe.Name = "colBienSoXe";
+            this.colBienSoXe.ReadOnly = true;
+            this.colBienSoXe.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            
+            // colID_CTYC
+            this.colID_CTYC.DataPropertyName = "ID_CTYC";
+            this.colID_CTYC.HeaderText = "MÃ CHI TIẾT YC";
+            this.colID_CTYC.Name = "colID_CTYC";
+            this.colID_CTYC.ReadOnly = true;
+            this.colID_CTYC.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            
+            // colTrangThai
+            this.colTrangThai.DataPropertyName = "TrangThai";
+            this.colTrangThai.HeaderText = "TRẠNG THÁI";
+            this.colTrangThai.Name = "colTrangThai";
+            this.colTrangThai.ReadOnly = true;
+            this.colTrangThai.DefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.colTrangThai.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             this.dgvData.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgvData.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
             this.dgvData.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
@@ -287,7 +350,11 @@
             // 
             // pnlActionTool
             // 
-            this.pnlActionTool.Controls.Add(this.btnApprove);
+            this.pnlActionTool.Controls.Add(this.btnDelete);
+            this.pnlActionTool.Controls.Add(this.btnEdit);
+            this.pnlActionTool.Controls.Add(this.btnAdd);
+            this.pnlActionTool.Controls.Add(this.dtpDenNgay);
+            this.pnlActionTool.Controls.Add(this.dtpTuNgay);
             this.pnlActionTool.Controls.Add(this.cmbTrangThai);
             this.pnlActionTool.Controls.Add(this.txtSearch);
             this.pnlActionTool.Controls.Add(this.lblTitle);
@@ -297,21 +364,75 @@
             this.pnlActionTool.Size = new System.Drawing.Size(1020, 120);
             this.pnlActionTool.TabIndex = 0;
             // 
-            // btnApprove
+            // btnDelete
             // 
-            this.btnApprove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnApprove.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(167)))), ((int)(((byte)(69)))));
-            this.btnApprove.FlatAppearance.BorderSize = 0;
-            this.btnApprove.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnApprove.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnApprove.ForeColor = System.Drawing.Color.White;
-            this.btnApprove.Location = new System.Drawing.Point(750, 10);
-            this.btnApprove.Name = "btnApprove";
-            this.btnApprove.Size = new System.Drawing.Size(270, 35);
-            this.btnApprove.TabIndex = 5;
-            this.btnApprove.Text = "✔ Xác nhận Đã nhận xử lý vận chuyển";
-            this.btnApprove.UseVisualStyleBackColor = false;
-            this.btnApprove.Click += new System.EventHandler(this.btnApprove_Click);
+            this.btnDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDelete.BackColor = System.Drawing.Color.Crimson;
+            this.btnDelete.FlatAppearance.BorderSize = 0;
+            this.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDelete.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnDelete.ForeColor = System.Drawing.Color.White;
+            this.btnDelete.Location = new System.Drawing.Point(920, 10);
+            this.btnDelete.Name = "btnDelete";
+            this.btnDelete.Size = new System.Drawing.Size(100, 35);
+            this.btnDelete.TabIndex = 7;
+            this.btnDelete.Text = "🗑️ Xóa";
+            this.btnDelete.UseVisualStyleBackColor = false;
+            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
+            // 
+            // btnEdit
+            // 
+            this.btnEdit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnEdit.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(138)))), ((int)(((byte)(0)))));
+            this.btnEdit.FlatAppearance.BorderSize = 0;
+            this.btnEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnEdit.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnEdit.ForeColor = System.Drawing.Color.White;
+            this.btnEdit.Location = new System.Drawing.Point(810, 10);
+            this.btnEdit.Name = "btnEdit";
+            this.btnEdit.Size = new System.Drawing.Size(100, 35);
+            this.btnEdit.TabIndex = 6;
+            this.btnEdit.Text = "✏️ Sửa";
+            this.btnEdit.UseVisualStyleBackColor = false;
+            this.btnEdit.Click += new System.EventHandler(this.btnEdit_Click);
+            // 
+            // btnAdd
+            // 
+            this.btnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAdd.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(167)))), ((int)(((byte)(69)))));
+            this.btnAdd.FlatAppearance.BorderSize = 0;
+            this.btnAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAdd.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnAdd.ForeColor = System.Drawing.Color.White;
+            this.btnAdd.Location = new System.Drawing.Point(680, 10);
+            this.btnAdd.Name = "btnAdd";
+            this.btnAdd.Size = new System.Drawing.Size(120, 35);
+            this.btnAdd.TabIndex = 5;
+            this.btnAdd.Text = "+ Thêm Phiếu";
+            this.btnAdd.UseVisualStyleBackColor = false;
+            this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
+            // 
+            // dtpTuNgay
+            // 
+            this.dtpTuNgay.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpTuNgay.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.dtpTuNgay.Location = new System.Drawing.Point(340, 75);
+            this.dtpTuNgay.Name = "dtpTuNgay";
+            this.dtpTuNgay.Size = new System.Drawing.Size(130, 29);
+            this.dtpTuNgay.TabIndex = 8;
+            this.dtpTuNgay.ShowCheckBox = true;
+            this.dtpTuNgay.Checked = false;
+            // 
+            // dtpDenNgay
+            // 
+            this.dtpDenNgay.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpDenNgay.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.dtpDenNgay.Location = new System.Drawing.Point(480, 75);
+            this.dtpDenNgay.Name = "dtpDenNgay";
+            this.dtpDenNgay.Size = new System.Drawing.Size(130, 29);
+            this.dtpDenNgay.TabIndex = 9;
+            this.dtpDenNgay.ShowCheckBox = true;
+            this.dtpDenNgay.Checked = false;
             // 
             // cmbTrangThai
             // 
@@ -323,7 +444,7 @@
             "Tất cả trạng thái",
             "Đang xử lý (Chờ nhận)",
             "Đã nhận xử lý vận chuyển"});
-            this.cmbTrangThai.Location = new System.Drawing.Point(820, 75);
+            this.cmbTrangThai.Location = new System.Drawing.Point(620, 75);
             this.cmbTrangThai.Name = "cmbTrangThai";
             this.cmbTrangThai.Size = new System.Drawing.Size(200, 29);
             this.cmbTrangThai.TabIndex = 4;
@@ -337,7 +458,7 @@
             this.txtSearch.ForeColor = System.Drawing.Color.Gray;
             this.txtSearch.Location = new System.Drawing.Point(0, 75);
             this.txtSearch.Name = "txtSearch";
-            this.txtSearch.Size = new System.Drawing.Size(800, 29);
+            this.txtSearch.Size = new System.Drawing.Size(330, 29);
             this.txtSearch.TabIndex = 3;
             this.txtSearch.Text = "🔍 Tìm kiếm theo Mã phiếu trả, Mã YC, Khách hàng...";
             this.txtSearch.TextChanged += new System.EventHandler(this.txtSearch_TextChanged);
@@ -402,7 +523,17 @@
         private System.Windows.Forms.Label lblTitle;
         private System.Windows.Forms.TextBox txtSearch;
         private System.Windows.Forms.ComboBox cmbTrangThai;
-        private System.Windows.Forms.Button btnApprove;
+        private System.Windows.Forms.Button btnAdd;
+        private System.Windows.Forms.Button btnEdit;
+        private System.Windows.Forms.Button btnDelete;
+        private System.Windows.Forms.DateTimePicker dtpTuNgay;
+        private System.Windows.Forms.DateTimePicker dtpDenNgay;
         private System.Windows.Forms.DataGridView dgvData;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colID_PhieuTra;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colNgayTra;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colMaDVC;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colBienSoXe;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colID_CTYC;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colTrangThai;
     }
 }

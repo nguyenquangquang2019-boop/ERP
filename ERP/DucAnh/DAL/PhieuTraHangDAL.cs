@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using Npgsql;
+using NpgsqlTypes;
 using ERP.DucAnh.DTO;
 
 namespace ERP.DucAnh.DAL
@@ -26,15 +27,15 @@ namespace ERP.DucAnh.DAL
         public List<PhieuTraHang> GetAll()
         {
             List<PhieuTraHang> list = new List<PhieuTraHang>();
-            const string query = @"SELECT ID_PhieuTra, NgayTra, MaDVC, ID_CTYC, TrangThai
+            const string query = @"SELECT ID_PhieuTra, NgayTra, MaDVC, ID_CTYC, TrangThai, BienSoXe
                                    FROM PhieuTraHang
                                    ORDER BY NgayTra DESC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
                 connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (NpgsqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -44,7 +45,8 @@ namespace ERP.DucAnh.DAL
                             NgayTra = reader["NgayTra"] != DBNull.Value ? Convert.ToDateTime(reader["NgayTra"]) : DateTime.MinValue,
                             MaDVC = reader["MaDVC"] != DBNull.Value ? reader["MaDVC"].ToString() : string.Empty,
                             ID_CTYC = reader["ID_CTYC"] != DBNull.Value ? reader["ID_CTYC"].ToString() : string.Empty,
-                            TrangThai = reader["TrangThai"] != DBNull.Value ? reader["TrangThai"].ToString() : string.Empty
+                            TrangThai = reader["TrangThai"] != DBNull.Value ? reader["TrangThai"].ToString() : string.Empty,
+                            BienSoXe = reader["BienSoXe"] != DBNull.Value ? reader["BienSoXe"].ToString() : string.Empty
                         });
                     }
                 }
@@ -55,16 +57,16 @@ namespace ERP.DucAnh.DAL
         // 2. Lấy phiếu trả hàng theo ID
         public PhieuTraHang GetByID(string id)
         {
-            const string query = @"SELECT ID_PhieuTra, NgayTra, MaDVC, ID_CTYC, TrangThai
+            const string query = @"SELECT ID_PhieuTra, NgayTra, MaDVC, ID_CTYC, TrangThai, BienSoXe
                                    FROM PhieuTraHang
                                    WHERE ID_PhieuTra = @ID_PhieuTra";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
-                command.Parameters.Add(new SqlParameter("@ID_PhieuTra", SqlDbType.NVarChar) { Value = id ?? string.Empty });
+                command.Parameters.Add(new NpgsqlParameter("@ID_PhieuTra", NpgsqlDbType.Varchar) { Value = id ?? string.Empty });
                 connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (NpgsqlDataReader reader = command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
@@ -74,7 +76,8 @@ namespace ERP.DucAnh.DAL
                             NgayTra = reader["NgayTra"] != DBNull.Value ? Convert.ToDateTime(reader["NgayTra"]) : DateTime.MinValue,
                             MaDVC = reader["MaDVC"] != DBNull.Value ? reader["MaDVC"].ToString() : string.Empty,
                             ID_CTYC = reader["ID_CTYC"] != DBNull.Value ? reader["ID_CTYC"].ToString() : string.Empty,
-                            TrangThai = reader["TrangThai"] != DBNull.Value ? reader["TrangThai"].ToString() : string.Empty
+                            TrangThai = reader["TrangThai"] != DBNull.Value ? reader["TrangThai"].ToString() : string.Empty,
+                            BienSoXe = reader["BienSoXe"] != DBNull.Value ? reader["BienSoXe"].ToString() : string.Empty
                         };
                     }
                 }
@@ -85,20 +88,51 @@ namespace ERP.DucAnh.DAL
         // 3. Thêm mới phiếu trả hàng
         public bool Insert(PhieuTraHang p)
         {
-            const string query = @"INSERT INTO PhieuTraHang (ID_PhieuTra, NgayTra, MaDVC, ID_CTYC, TrangThai)
-                                   VALUES (@ID_PhieuTra, @NgayTra, @MaDVC, @ID_CTYC, @TrangThai)";
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
-                command.Parameters.Add(new SqlParameter("@ID_PhieuTra", SqlDbType.NVarChar) { Value = (object)p.ID_PhieuTra ?? DBNull.Value });
-                command.Parameters.Add(new SqlParameter("@NgayTra", SqlDbType.DateTime) { Value = p.NgayTra != DateTime.MinValue ? p.NgayTra : DateTime.Now });
-                command.Parameters.Add(new SqlParameter("@MaDVC", SqlDbType.NVarChar) { Value = (object)p.MaDVC ?? DBNull.Value });
-                command.Parameters.Add(new SqlParameter("@ID_CTYC", SqlDbType.NVarChar) { Value = (object)p.ID_CTYC ?? DBNull.Value });
-                command.Parameters.Add(new SqlParameter("@TrangThai", SqlDbType.NVarChar) { Value = (object)p.TrangThai ?? DBNull.Value });
-
                 connection.Open();
-                return command.ExecuteNonQuery() > 0;
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        // 1. Insert PhieuTraHang
+                        const string query1 = @"INSERT INTO PhieuTraHang (ID_PhieuTra, NgayTra, MaDVC, ID_CTYC, TrangThai, BienSoXe)
+                                               VALUES (@ID_PhieuTra, @NgayTra, @MaDVC, @ID_CTYC, 'Đang lấy hàng', @BienSoXe)";
+                        using (NpgsqlCommand cmd1 = new NpgsqlCommand(query1, connection, transaction))
+                        {
+                            cmd1.Parameters.Add(new NpgsqlParameter("@ID_PhieuTra", NpgsqlDbType.Varchar) { Value = (object)p.ID_PhieuTra ?? DBNull.Value });
+                            cmd1.Parameters.Add(new NpgsqlParameter("@NgayTra", NpgsqlDbType.Timestamp) { Value = p.NgayTra != DateTime.MinValue ? p.NgayTra : DateTime.Now });
+                            cmd1.Parameters.Add(new NpgsqlParameter("@MaDVC", NpgsqlDbType.Varchar) { Value = (object)p.MaDVC ?? DBNull.Value });
+                            cmd1.Parameters.Add(new NpgsqlParameter("@ID_CTYC", NpgsqlDbType.Varchar) { Value = (object)p.ID_CTYC ?? DBNull.Value });
+                            cmd1.Parameters.Add(new NpgsqlParameter("@BienSoXe", NpgsqlDbType.Varchar) { Value = (object)p.BienSoXe ?? DBNull.Value });
+                            cmd1.ExecuteNonQuery();
+                        }
+
+                        // 2. Update PhuongTien
+                        const string query2 = @"UPDATE PhuongTien SET TrangThaiXe = 'Đang vận chuyển' WHERE BienSoXe = @BienSoXe";
+                        using (NpgsqlCommand cmd2 = new NpgsqlCommand(query2, connection, transaction))
+                        {
+                            cmd2.Parameters.Add(new NpgsqlParameter("@BienSoXe", NpgsqlDbType.Varchar) { Value = (object)p.BienSoXe ?? DBNull.Value });
+                            cmd2.ExecuteNonQuery();
+                        }
+
+                        // 3. Update YeuCauSauBanHang
+                        const string query3 = @"UPDATE YeuCauSauBanHang SET TrangThai = 'Đang xử lý' WHERE ID_YC = (SELECT ID_YC FROM ChiTietYeuCau WHERE ID_CTYC = @ID_CTYC)";
+                        using (NpgsqlCommand cmd3 = new NpgsqlCommand(query3, connection, transaction))
+                        {
+                            cmd3.Parameters.Add(new NpgsqlParameter("@ID_CTYC", NpgsqlDbType.Varchar) { Value = (object)p.ID_CTYC ?? DBNull.Value });
+                            cmd3.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                        return true;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
             }
         }
 
@@ -109,17 +143,19 @@ namespace ERP.DucAnh.DAL
                                    SET NgayTra = @NgayTra,
                                        MaDVC = @MaDVC,
                                        ID_CTYC = @ID_CTYC,
-                                       TrangThai = @TrangThai
+                                       TrangThai = @TrangThai,
+                                       BienSoXe = @BienSoXe
                                    WHERE ID_PhieuTra = @ID_PhieuTra";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
-                command.Parameters.Add(new SqlParameter("@ID_PhieuTra", SqlDbType.NVarChar) { Value = (object)p.ID_PhieuTra ?? DBNull.Value });
-                command.Parameters.Add(new SqlParameter("@NgayTra", SqlDbType.DateTime) { Value = p.NgayTra != DateTime.MinValue ? p.NgayTra : DateTime.Now });
-                command.Parameters.Add(new SqlParameter("@MaDVC", SqlDbType.NVarChar) { Value = (object)p.MaDVC ?? DBNull.Value });
-                command.Parameters.Add(new SqlParameter("@ID_CTYC", SqlDbType.NVarChar) { Value = (object)p.ID_CTYC ?? DBNull.Value });
-                command.Parameters.Add(new SqlParameter("@TrangThai", SqlDbType.NVarChar) { Value = (object)p.TrangThai ?? DBNull.Value });
+                command.Parameters.Add(new NpgsqlParameter("@ID_PhieuTra", NpgsqlDbType.Varchar) { Value = (object)p.ID_PhieuTra ?? DBNull.Value });
+                command.Parameters.Add(new NpgsqlParameter("@NgayTra", NpgsqlDbType.Timestamp) { Value = p.NgayTra != DateTime.MinValue ? p.NgayTra : DateTime.Now });
+                command.Parameters.Add(new NpgsqlParameter("@MaDVC", NpgsqlDbType.Varchar) { Value = (object)p.MaDVC ?? DBNull.Value });
+                command.Parameters.Add(new NpgsqlParameter("@ID_CTYC", NpgsqlDbType.Varchar) { Value = (object)p.ID_CTYC ?? DBNull.Value });
+                command.Parameters.Add(new NpgsqlParameter("@TrangThai", NpgsqlDbType.Varchar) { Value = (object)p.TrangThai ?? DBNull.Value });
+                command.Parameters.Add(new NpgsqlParameter("@BienSoXe", NpgsqlDbType.Varchar) { Value = (object)p.BienSoXe ?? DBNull.Value });
 
                 connection.Open();
                 return command.ExecuteNonQuery() > 0;
@@ -129,14 +165,73 @@ namespace ERP.DucAnh.DAL
         // 5. Xóa phiếu trả hàng theo ID_PhieuTra
         public bool Delete(string id)
         {
-            const string query = "DELETE FROM PhieuTraHang WHERE ID_PhieuTra = @ID_PhieuTra";
-
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
             {
-                command.Parameters.Add(new SqlParameter("@ID_PhieuTra", SqlDbType.NVarChar) { Value = id ?? string.Empty });
                 connection.Open();
-                return command.ExecuteNonQuery() > 0;
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        string bienSoXe = null;
+                        string idCTYC = null;
+
+                        // Get info first
+                        const string queryInfo = "SELECT BienSoXe, ID_CTYC FROM PhieuTraHang WHERE ID_PhieuTra = @ID_PhieuTra";
+                        using (NpgsqlCommand cmdInfo = new NpgsqlCommand(queryInfo, connection, transaction))
+                        {
+                            cmdInfo.Parameters.Add(new NpgsqlParameter("@ID_PhieuTra", NpgsqlDbType.Varchar) { Value = id ?? string.Empty });
+                            using (var reader = cmdInfo.ExecuteReader())
+                            {
+                                if (reader.Read())
+                                {
+                                    bienSoXe = reader["BienSoXe"] != DBNull.Value ? reader["BienSoXe"].ToString() : null;
+                                    idCTYC = reader["ID_CTYC"] != DBNull.Value ? reader["ID_CTYC"].ToString() : null;
+                                }
+                            }
+                        }
+
+                        if (string.IsNullOrEmpty(idCTYC))
+                        {
+                            transaction.Rollback();
+                            return false;
+                        }
+
+                        // 1. Delete PhieuTraHang
+                        const string query1 = "DELETE FROM PhieuTraHang WHERE ID_PhieuTra = @ID_PhieuTra";
+                        using (NpgsqlCommand cmd1 = new NpgsqlCommand(query1, connection, transaction))
+                        {
+                            cmd1.Parameters.Add(new NpgsqlParameter("@ID_PhieuTra", NpgsqlDbType.Varchar) { Value = id ?? string.Empty });
+                            cmd1.ExecuteNonQuery();
+                        }
+
+                        // 2. Update PhuongTien
+                        if (!string.IsNullOrEmpty(bienSoXe))
+                        {
+                            const string query2 = "UPDATE PhuongTien SET TrangThaiXe = 'Sẵn sàng' WHERE BienSoXe = @BienSoXe";
+                            using (NpgsqlCommand cmd2 = new NpgsqlCommand(query2, connection, transaction))
+                            {
+                                cmd2.Parameters.Add(new NpgsqlParameter("@BienSoXe", NpgsqlDbType.Varchar) { Value = bienSoXe });
+                                cmd2.ExecuteNonQuery();
+                            }
+                        }
+
+                        // 3. Update YeuCauSauBanHang
+                        const string query3 = "UPDATE YeuCauSauBanHang SET TrangThai = 'Chờ xử lý' WHERE ID_YC = (SELECT ID_YC FROM ChiTietYeuCau WHERE ID_CTYC = @ID_CTYC)";
+                        using (NpgsqlCommand cmd3 = new NpgsqlCommand(query3, connection, transaction))
+                        {
+                            cmd3.Parameters.Add(new NpgsqlParameter("@ID_CTYC", NpgsqlDbType.Varchar) { Value = idCTYC });
+                            cmd3.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                        return true;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
             }
         }
 
@@ -145,10 +240,10 @@ namespace ERP.DucAnh.DAL
         {
             const string query = "SELECT COUNT(*) FROM PhieuTraHang WHERE ID_CTYC = @ID_CTYC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
-                command.Parameters.Add(new SqlParameter("@ID_CTYC", SqlDbType.NVarChar) { Value = idCTYC ?? string.Empty });
+                command.Parameters.Add(new NpgsqlParameter("@ID_CTYC", NpgsqlDbType.Varchar) { Value = idCTYC ?? string.Empty });
                 connection.Open();
                 int count = Convert.ToInt32(command.ExecuteScalar());
                 return count > 0;
@@ -164,10 +259,10 @@ namespace ERP.DucAnh.DAL
 
             // Đảm bảo lọc trọn vẹn từ 00:00:00 của tuNgay đến 23:59:59 của denNgay
             DateTime start = tuNgay.Date;
-            DateTime end = denNgay.Date.AddDays(1).AddTicks(-1);
+            DateTime end = denNgay == DateTime.MaxValue ? DateTime.MaxValue : denNgay.Date.AddDays(1).AddTicks(-1);
 
             const string query = @"
-                SELECT PT.ID_PhieuTra, PT.NgayTra, PT.MaDVC, PT.ID_CTYC, PT.TrangThai
+                SELECT PT.ID_PhieuTra, PT.NgayTra, PT.MaDVC, PT.ID_CTYC, PT.TrangThai, PT.BienSoXe
                 FROM PhieuTraHang PT
                 LEFT JOIN DiemVanChuyen DVC ON PT.MaDVC = DVC.MaDVC
                 WHERE PT.NgayTra >= @TuNgay AND PT.NgayTra <= @DenNgay
@@ -175,17 +270,17 @@ namespace ERP.DucAnh.DAL
                   AND (@TrangThai = '' OR @TrangThai = N'Tất cả trạng thái' OR PT.TrangThai = @TrangThai)
                 ORDER BY PT.NgayTra DESC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
-                command.Parameters.Add(new SqlParameter("@TuNgay", SqlDbType.DateTime) { Value = start });
-                command.Parameters.Add(new SqlParameter("@DenNgay", SqlDbType.DateTime) { Value = end });
-                command.Parameters.Add(new SqlParameter("@Keyword", SqlDbType.NVarChar) { Value = kw });
-                command.Parameters.Add(new SqlParameter("@KwLike", SqlDbType.NVarChar) { Value = kwLike });
-                command.Parameters.Add(new SqlParameter("@TrangThai", SqlDbType.NVarChar) { Value = trangThai ?? string.Empty });
+                command.Parameters.Add(new NpgsqlParameter("@TuNgay", NpgsqlDbType.Timestamp) { Value = start });
+                command.Parameters.Add(new NpgsqlParameter("@DenNgay", NpgsqlDbType.Timestamp) { Value = end });
+                command.Parameters.Add(new NpgsqlParameter("@Keyword", NpgsqlDbType.Varchar) { Value = kw });
+                command.Parameters.Add(new NpgsqlParameter("@KwLike", NpgsqlDbType.Varchar) { Value = kwLike });
+                command.Parameters.Add(new NpgsqlParameter("@TrangThai", NpgsqlDbType.Varchar) { Value = trangThai ?? string.Empty });
 
                 connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (NpgsqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -195,7 +290,8 @@ namespace ERP.DucAnh.DAL
                             NgayTra = reader["NgayTra"] != DBNull.Value ? Convert.ToDateTime(reader["NgayTra"]) : DateTime.MinValue,
                             MaDVC = reader["MaDVC"] != DBNull.Value ? reader["MaDVC"].ToString() : string.Empty,
                             ID_CTYC = reader["ID_CTYC"] != DBNull.Value ? reader["ID_CTYC"].ToString() : string.Empty,
-                            TrangThai = reader["TrangThai"] != DBNull.Value ? reader["TrangThai"].ToString() : string.Empty
+                            TrangThai = reader["TrangThai"] != DBNull.Value ? reader["TrangThai"].ToString() : string.Empty,
+                            BienSoXe = reader["BienSoXe"] != DBNull.Value ? reader["BienSoXe"].ToString() : string.Empty
                         });
                     }
                 }
@@ -207,13 +303,18 @@ namespace ERP.DucAnh.DAL
         public List<string> GetDanhSachCTYC()
         {
             List<string> list = new List<string>();
-            const string query = "SELECT ID_CTYC FROM ChiTietYeuCau ORDER BY ID_CTYC ASC";
+            const string query = @"SELECT c.ID_CTYC 
+                                   FROM ChiTietYeuCau c
+                                   JOIN YeuCauSauBanHang y ON c.ID_YC = y.ID_YC
+                                   WHERE y.TrangThai = 'Chờ xử lý'
+                                     AND c.ID_CTYC NOT IN (SELECT ID_CTYC FROM PhieuTraHang WHERE ID_CTYC IS NOT NULL)
+                                   ORDER BY c.ID_CTYC ASC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
                 connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (NpgsqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -233,11 +334,11 @@ namespace ERP.DucAnh.DAL
             List<string> list = new List<string>();
             const string query = "SELECT MaDVC FROM DiemVanChuyen ORDER BY MaDVC ASC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
                 connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (NpgsqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -250,5 +351,132 @@ namespace ERP.DucAnh.DAL
             }
             return list;
         }
+
+        // 9.5. Lấy danh sách Mã và Tên DVC
+        public Dictionary<string, string> GetDanhSachDVC()
+        {
+            var dict = new Dictionary<string, string>();
+            const string query = "SELECT MaDVC, TenDVC FROM DiemVanChuyen ORDER BY MaDVC ASC";
+
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
+            {
+                connection.Open();
+                using (NpgsqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["MaDVC"] != DBNull.Value)
+                        {
+                            string ma = reader["MaDVC"].ToString();
+                            string ten = reader["TenDVC"] != DBNull.Value ? reader["TenDVC"].ToString() : string.Empty;
+                            dict[ma] = ten;
+                        }
+                    }
+                }
+            }
+            return dict;
+        }
+
+        // 10. Lấy danh sách BienSoXe từ bảng PhuongTien
+        public List<string> GetDanhSachXeKhaDung()
+        {
+            List<string> list = new List<string>();
+            const string query = "SELECT BienSoXe FROM PhuongTien ORDER BY BienSoXe ASC";
+
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
+            {
+                connection.Open();
+                using (NpgsqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["BienSoXe"] != DBNull.Value)
+                        {
+                            list.Add(reader["BienSoXe"].ToString());
+                        }
+                    }
+                }
+            }
+            return list;
+        }
+
+        // 11. Lấy thông tin yêu cầu để hiển thị
+        public ThongTinYeuCau GetThongTinYeuCau(string idCTYC)
+        {
+            const string query = @"
+                SELECT hh.TenHang, ctyc.SoLuong, ctyc.TinhTrang as LyDo, kh.TenDoanhNghiep as KhachHang
+                FROM ChiTietYeuCau ctyc
+                JOIN SanPham sp ON ctyc.ID_SP = sp.ID_SP
+                JOIN HangHoa hh ON sp.MaHang = hh.MaHang
+                JOIN YeuCauSauBanHang yc ON ctyc.ID_YC = yc.ID_YC
+                JOIN KhachHang kh ON yc.ID_KH = kh.ID_KH
+                WHERE ctyc.ID_CTYC = @ID_CTYC";
+
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
+            {
+                command.Parameters.Add(new NpgsqlParameter("@ID_CTYC", NpgsqlDbType.Varchar) { Value = idCTYC ?? string.Empty });
+                connection.Open();
+                using (NpgsqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return new ThongTinYeuCau
+                        {
+                            TenHang = reader["TenHang"] != DBNull.Value ? reader["TenHang"].ToString() : string.Empty,
+                            SoLuong = reader["SoLuong"] != DBNull.Value ? Convert.ToInt32(reader["SoLuong"]) : 0,
+                            LyDo = reader["LyDo"] != DBNull.Value ? reader["LyDo"].ToString() : string.Empty,
+                            KhachHang = reader["KhachHang"] != DBNull.Value ? reader["KhachHang"].ToString() : string.Empty
+                        };
+                    }
+                }
+            }
+            return null;
+        }
+        // 12. Lấy danh sách Loại Xe Rảnh
+        public List<string> GetDanhSachLoaiXeRanh()
+        {
+            List<string> list = new List<string>();
+            const string query = @"SELECT DISTINCT LoaiXe FROM PhuongTien 
+                                   WHERE TrangThaiXe IN ('Sẵn sàng', 'Đang rảnh')
+                                   ORDER BY LoaiXe ASC";
+
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
+            {
+                connection.Open();
+                using (NpgsqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["LoaiXe"] != DBNull.Value)
+                        {
+                            list.Add(reader["LoaiXe"].ToString());
+                        }
+                    }
+                }
+            }
+            return list;
+        }
+
+        public DataTable GetAllPhuongTienRanh()
+        {
+            var dt = new DataTable();
+            const string query = @"SELECT BienSoXe, LoaiXe, TaiTrong, TenTaiXe FROM PhuongTien 
+                                   WHERE TrangThaiXe IN ('Sẵn sàng', 'Đang rảnh')
+                                   ORDER BY BienSoXe ASC";
+
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlDataAdapter adapter = new NpgsqlDataAdapter(query, connection))
+            {
+                adapter.Fill(dt);
+            }
+            return dt;
+        }
     }
 }
+
+
+

@@ -1,5 +1,5 @@
-using System;
-using System.Data.SqlClient;
+﻿using System;
+using Npgsql;
 using System.Windows.Forms;
 using ERP.DucAnh.DAL;
 
@@ -32,15 +32,15 @@ namespace ERP
         {
             string query = "SELECT LoaiXe, TaiTrong, TenTaiXe, TrangThaiXe, KichHoat FROM PhuongTien WHERE BienSoXe = @BienSoXe";
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    SqlCommand cmd = new SqlCommand(query, conn);
+                    NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@BienSoXe", bienSoXeCu);
 
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
                         {
@@ -90,12 +90,12 @@ namespace ERP
                              SET LoaiXe = @LoaiXe, TaiTrong = @TaiTrong, TenTaiXe = @TenTaiXe, TrangThaiXe = @TrangThaiXe, KichHoat = @KichHoat 
                              WHERE BienSoXe = @BienSoXe";
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    SqlCommand cmd = new SqlCommand(query, conn);
+                    NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
 
                     cmd.Parameters.AddWithValue("@LoaiXe", loaiXe);
                     cmd.Parameters.AddWithValue("@TaiTrong", taiTrong);

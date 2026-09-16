@@ -1,5 +1,5 @@
-using System;
-using System.Data.SqlClient;
+﻿using System;
+using Npgsql;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using ERP.DucAnh.DAL;
@@ -50,12 +50,12 @@ namespace ERP
                              VALUES 
                              (@MaDVC, @TenDVC, @DiaChiDVC, @SDT_DVC, @TenNguoiDaiDien)";
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    SqlCommand cmd = new SqlCommand(query, conn);
+                    NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
 
                     // Truyền tham số an toàn chống SQL Injection
                     cmd.Parameters.AddWithValue("@MaDVC", maDVC);
@@ -70,9 +70,9 @@ namespace ERP
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }
-                catch (SqlException ex)
+                catch (PostgresException ex)
                 {
-                    if (ex.Number == 2627) // Lỗi trùng khóa chính (Primary Key)
+                    if (ex.SqlState == "23505") // Lỗi trùng khóa chính (Primary Key)
                     {
                         MessageBox.Show($"Mã điểm vận chuyển '{maDVC}' đã tồn tại trong hệ thống. Vui lòng nhập mã khác!", "Lỗi trùng lặp", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
@@ -94,3 +94,5 @@ namespace ERP
         }
     }
 }
+
+

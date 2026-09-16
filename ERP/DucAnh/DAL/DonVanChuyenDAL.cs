@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
-using System.Data.SqlClient;
+using Npgsql;
+using NpgsqlTypes;
 using ERP.DucAnh.DTO;
 
 namespace ERP.DucAnh.DAL
@@ -10,7 +11,8 @@ namespace ERP.DucAnh.DAL
     public static class DatabaseConfig
     {
         public const string ConnectionString =
-            @"Data Source=DESKTOP-JMQN698\SQLEXPRESS;Initial Catalog=ERP_BanHang;Integrated Security=True;TrustServerCertificate=True";
+            @"Host=ep-bitter-heart-b3yu3xlc-pooler.c-4.ap-southeast-1.aws.neon.tech;Database=erp_banhang;Username=neondb_owner;Password=npg_fVzi2bH5uYaj;SSL Mode=Require;";
+
 
         public static string GetConnectionString()
         {
@@ -55,17 +57,17 @@ namespace ERP.DucAnh.DAL
         {
             List<DonVanChuyen> list = new List<DonVanChuyen>();
             const string query = @"SELECT DVC.ID_DonVC, DVC.BienSoXe, DVC.MaDVC, DVC.ID_SP, DVC.SoLuongGiao, DVC.ThoiGianKhoiHanh, DVC.TrangThaiDon,
-                                          ISNULL(HH.TenHang, SP.LoaiSP) AS TenHang
+                                          COALESCE(HH.TenHang, SP.LoaiSP) AS TenHang
                                    FROM DonVanChuyen DVC
                                    LEFT JOIN SanPham SP ON DVC.ID_SP = SP.ID_SP
                                    LEFT JOIN HangHoa HH ON SP.MaHang = HH.MaHang
                                    ORDER BY DVC.ThoiGianKhoiHanh DESC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
                 connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (NpgsqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -89,18 +91,18 @@ namespace ERP.DucAnh.DAL
         public DonVanChuyen GetByID(string id)
         {
             const string query = @"SELECT DVC.ID_DonVC, DVC.BienSoXe, DVC.MaDVC, DVC.ID_SP, DVC.SoLuongGiao, DVC.ThoiGianKhoiHanh, DVC.TrangThaiDon,
-                                          ISNULL(HH.TenHang, SP.LoaiSP) AS TenHang
+                                          COALESCE(HH.TenHang, SP.LoaiSP) AS TenHang
                                    FROM DonVanChuyen DVC
                                    LEFT JOIN SanPham SP ON DVC.ID_SP = SP.ID_SP
                                    LEFT JOIN HangHoa HH ON SP.MaHang = HH.MaHang
                                    WHERE DVC.ID_DonVC = @ID_DonVC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
-                command.Parameters.Add(new SqlParameter("@ID_DonVC", SqlDbType.NVarChar) { Value = id ?? string.Empty });
+                command.Parameters.Add(new NpgsqlParameter("@ID_DonVC", NpgsqlDbType.Varchar) { Value = id ?? string.Empty });
                 connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (NpgsqlDataReader reader = command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
@@ -129,16 +131,16 @@ namespace ERP.DucAnh.DAL
                                    VALUES
                                     (@ID_DonVC, @BienSoXe, @MaDVC, @ID_SP, @SoLuongGiao, @ThoiGianKhoiHanh, @TrangThaiDon)";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
-                command.Parameters.Add(new SqlParameter("@ID_DonVC", SqlDbType.NVarChar) { Value = (object)don.ID_DonVC ?? DBNull.Value });
-                command.Parameters.Add(new SqlParameter("@BienSoXe", SqlDbType.NVarChar) { Value = (object)don.BienSoXe ?? DBNull.Value });
-                command.Parameters.Add(new SqlParameter("@MaDVC", SqlDbType.NVarChar) { Value = (object)don.MaDVC ?? DBNull.Value });
-                command.Parameters.Add(new SqlParameter("@ID_SP", SqlDbType.NVarChar) { Value = (object)don.ID_SP ?? DBNull.Value });
-                command.Parameters.Add(new SqlParameter("@SoLuongGiao", SqlDbType.Int) { Value = don.SoLuongGiao });
-                command.Parameters.Add(new SqlParameter("@ThoiGianKhoiHanh", SqlDbType.DateTime) { Value = don.ThoiGianKhoiHanh });
-                command.Parameters.Add(new SqlParameter("@TrangThaiDon", SqlDbType.NVarChar) { Value = (object)don.TrangThaiDon ?? DBNull.Value });
+                command.Parameters.Add(new NpgsqlParameter("@ID_DonVC", NpgsqlDbType.Varchar) { Value = (object)don.ID_DonVC ?? DBNull.Value });
+                command.Parameters.Add(new NpgsqlParameter("@BienSoXe", NpgsqlDbType.Varchar) { Value = (object)don.BienSoXe ?? DBNull.Value });
+                command.Parameters.Add(new NpgsqlParameter("@MaDVC", NpgsqlDbType.Varchar) { Value = (object)don.MaDVC ?? DBNull.Value });
+                command.Parameters.Add(new NpgsqlParameter("@ID_SP", NpgsqlDbType.Varchar) { Value = (object)don.ID_SP ?? DBNull.Value });
+                command.Parameters.Add(new NpgsqlParameter("@SoLuongGiao", NpgsqlDbType.Integer) { Value = don.SoLuongGiao });
+                command.Parameters.Add(new NpgsqlParameter("@ThoiGianKhoiHanh", NpgsqlDbType.Timestamp) { Value = don.ThoiGianKhoiHanh });
+                command.Parameters.Add(new NpgsqlParameter("@TrangThaiDon", NpgsqlDbType.Varchar) { Value = (object)don.TrangThaiDon ?? DBNull.Value });
 
                 connection.Open();
                 return command.ExecuteNonQuery() > 0;
@@ -157,16 +159,16 @@ namespace ERP.DucAnh.DAL
                                        TrangThaiDon = @TrangThaiDon
                                    WHERE ID_DonVC = @ID_DonVC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
-                command.Parameters.Add(new SqlParameter("@ID_DonVC", SqlDbType.NVarChar) { Value = (object)don.ID_DonVC ?? DBNull.Value });
-                command.Parameters.Add(new SqlParameter("@BienSoXe", SqlDbType.NVarChar) { Value = (object)don.BienSoXe ?? DBNull.Value });
-                command.Parameters.Add(new SqlParameter("@MaDVC", SqlDbType.NVarChar) { Value = (object)don.MaDVC ?? DBNull.Value });
-                command.Parameters.Add(new SqlParameter("@ID_SP", SqlDbType.NVarChar) { Value = (object)don.ID_SP ?? DBNull.Value });
-                command.Parameters.Add(new SqlParameter("@SoLuongGiao", SqlDbType.Int) { Value = don.SoLuongGiao });
-                command.Parameters.Add(new SqlParameter("@ThoiGianKhoiHanh", SqlDbType.DateTime) { Value = don.ThoiGianKhoiHanh });
-                command.Parameters.Add(new SqlParameter("@TrangThaiDon", SqlDbType.NVarChar) { Value = (object)don.TrangThaiDon ?? DBNull.Value });
+                command.Parameters.Add(new NpgsqlParameter("@ID_DonVC", NpgsqlDbType.Varchar) { Value = (object)don.ID_DonVC ?? DBNull.Value });
+                command.Parameters.Add(new NpgsqlParameter("@BienSoXe", NpgsqlDbType.Varchar) { Value = (object)don.BienSoXe ?? DBNull.Value });
+                command.Parameters.Add(new NpgsqlParameter("@MaDVC", NpgsqlDbType.Varchar) { Value = (object)don.MaDVC ?? DBNull.Value });
+                command.Parameters.Add(new NpgsqlParameter("@ID_SP", NpgsqlDbType.Varchar) { Value = (object)don.ID_SP ?? DBNull.Value });
+                command.Parameters.Add(new NpgsqlParameter("@SoLuongGiao", NpgsqlDbType.Integer) { Value = don.SoLuongGiao });
+                command.Parameters.Add(new NpgsqlParameter("@ThoiGianKhoiHanh", NpgsqlDbType.Timestamp) { Value = don.ThoiGianKhoiHanh });
+                command.Parameters.Add(new NpgsqlParameter("@TrangThaiDon", NpgsqlDbType.Varchar) { Value = (object)don.TrangThaiDon ?? DBNull.Value });
 
                 connection.Open();
                 return command.ExecuteNonQuery() > 0;
@@ -178,10 +180,10 @@ namespace ERP.DucAnh.DAL
         {
             const string query = "DELETE FROM DonVanChuyen WHERE ID_DonVC = @ID_DonVC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
-                command.Parameters.Add(new SqlParameter("@ID_DonVC", SqlDbType.NVarChar) { Value = (object)id ?? DBNull.Value });
+                command.Parameters.Add(new NpgsqlParameter("@ID_DonVC", NpgsqlDbType.Varchar) { Value = (object)id ?? DBNull.Value });
 
                 connection.Open();
                 return command.ExecuteNonQuery() > 0;
@@ -193,7 +195,7 @@ namespace ERP.DucAnh.DAL
         {
             List<DonVanChuyen> list = new List<DonVanChuyen>();
             const string query = @"SELECT DVC.ID_DonVC, DVC.BienSoXe, DVC.MaDVC, DVC.ID_SP, DVC.SoLuongGiao, DVC.ThoiGianKhoiHanh, DVC.TrangThaiDon,
-                                          ISNULL(HH.TenHang, SP.LoaiSP) AS TenHang
+                                          COALESCE(HH.TenHang, SP.LoaiSP) AS TenHang
                                    FROM DonVanChuyen DVC
                                    LEFT JOIN SanPham SP ON DVC.ID_SP = SP.ID_SP
                                    LEFT JOIN HangHoa HH ON SP.MaHang = HH.MaHang
@@ -205,14 +207,14 @@ namespace ERP.DucAnh.DAL
                                       OR SP.LoaiSP LIKE @Keyword
                                    ORDER BY DVC.ThoiGianKhoiHanh DESC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
                 string searchPattern = "%" + (keyword ?? string.Empty).Trim() + "%";
-                command.Parameters.Add(new SqlParameter("@Keyword", SqlDbType.NVarChar) { Value = searchPattern });
+                command.Parameters.Add(new NpgsqlParameter("@Keyword", NpgsqlDbType.Varchar) { Value = searchPattern });
 
                 connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (NpgsqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -238,10 +240,10 @@ namespace ERP.DucAnh.DAL
         {
             const string query = "SELECT COUNT(1) FROM DonVanChuyen WHERE ID_DonVC = @ID_DonVC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
-                command.Parameters.Add(new SqlParameter("@ID_DonVC", SqlDbType.NVarChar) { Value = (object)id ?? DBNull.Value });
+                command.Parameters.Add(new NpgsqlParameter("@ID_DonVC", NpgsqlDbType.Varchar) { Value = (object)id ?? DBNull.Value });
 
                 connection.Open();
                 int count = Convert.ToInt32(command.ExecuteScalar());
@@ -266,11 +268,11 @@ namespace ERP.DucAnh.DAL
                                      )
                                    ORDER BY BienSoXe ASC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
                 connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (NpgsqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -290,11 +292,11 @@ namespace ERP.DucAnh.DAL
             List<string> list = new List<string>();
             const string query = "SELECT MaDVC FROM DiemVanChuyen ORDER BY MaDVC ASC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
                 connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (NpgsqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -314,11 +316,11 @@ namespace ERP.DucAnh.DAL
             List<string> list = new List<string>();
             const string query = "SELECT ID_SP FROM SanPham ORDER BY ID_SP ASC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
                 connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (NpgsqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -336,16 +338,16 @@ namespace ERP.DucAnh.DAL
         public List<SanPhamComboItem> GetDanhSachSanPhamWithTen()
         {
             List<SanPhamComboItem> list = new List<SanPhamComboItem>();
-            const string query = @"SELECT SP.ID_SP, ISNULL(HH.TenHang, SP.LoaiSP) AS TenHang
+            const string query = @"SELECT SP.ID_SP, COALESCE(HH.TenHang, SP.LoaiSP) AS TenHang
                                    FROM SanPham SP
                                    LEFT JOIN HangHoa HH ON SP.MaHang = HH.MaHang
                                    ORDER BY SP.ID_SP ASC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlCommand command = new NpgsqlCommand(query, connection))
             {
                 connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
+                using (NpgsqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -365,15 +367,15 @@ namespace ERP.DucAnh.DAL
         {
             const string query = @"
                 SELECT DVC.ID_DonVC, DVC.BienSoXe, DVC.MaDVC,
-                       ISNULL(DMC.TenDVC, DVC.MaDVC) AS TenDVC,
+                       COALESCE(DMC.TenDVC, DVC.MaDVC) AS TenDVC,
                        DVC.ID_SP, DVC.SoLuongGiao, DVC.ThoiGianKhoiHanh,
                        DVC.TrangThaiDon
                 FROM DonVanChuyen DVC
                 LEFT JOIN DiemVanChuyen DMC ON DVC.MaDVC = DMC.MaDVC
                 ORDER BY DVC.ThoiGianKhoiHanh DESC";
 
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            using (SqlDataAdapter adapter = new SqlDataAdapter(query, connection))
+            using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
+            using (NpgsqlDataAdapter adapter = new NpgsqlDataAdapter(query, connection))
             {
                 DataTable result = new DataTable();
                 adapter.Fill(result);
@@ -387,3 +389,6 @@ namespace ERP.DucAnh.DAL
         }
     }
 }
+
+
+

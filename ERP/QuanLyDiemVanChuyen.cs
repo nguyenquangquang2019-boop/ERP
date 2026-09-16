@@ -1,6 +1,6 @@
-using System;
+﻿using System;
 using System.Data;
-using System.Data.SqlClient;
+using Npgsql;
 using System.Drawing;
 using System.Windows.Forms;
 using ERP.DucAnh.DAL;
@@ -89,12 +89,12 @@ namespace ERP
             // Truy vấn đúng tên 5 cột trong bảng DiemVanChuyen
             string query = "SELECT MaDVC, TenDVC, DiaChiDVC, SDT_DVC, TenNguoiDaiDien FROM DiemVanChuyen ORDER BY MaDVC DESC";
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    SqlDataAdapter da = new SqlDataAdapter(query, conn);
+                    NpgsqlDataAdapter da = new NpgsqlDataAdapter(query, conn);
                     dtDiemVC = new DataTable();
                     da.Fill(dtDiemVC);
 
@@ -218,12 +218,12 @@ namespace ERP
                 {
                     string query = "DELETE FROM DiemVanChuyen WHERE MaDVC = @MaDVC";
 
-                    using (SqlConnection conn = new SqlConnection(connectionString))
+                    using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
                     {
                         try
                         {
                             conn.Open();
-                            SqlCommand cmd = new SqlCommand(query, conn);
+                            NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
                             cmd.Parameters.AddWithValue("@MaDVC", maDVC);
 
                             int rowsAffected = cmd.ExecuteNonQuery();
@@ -238,10 +238,10 @@ namespace ERP
                                 MessageBox.Show("Không tìm thấy điểm vận chuyển cần xóa trong cơ sở dữ liệu.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }
-                        catch (SqlException ex)
+                        catch (PostgresException ex)
                         {
                             // Lỗi mã 547: Bị vướng khóa ngoại (Foreign Key)
-                            if (ex.Number == 547)
+                            if ((ex.SqlState == "23503" || ex.SqlState == "23514"))
                             {
                                 MessageBox.Show("Không thể xóa điểm vận chuyển này vì đã phát sinh dữ liệu liên quan trong hệ thống.", "Lỗi ràng buộc dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
@@ -300,3 +300,5 @@ namespace ERP
         }
     }
 }
+
+

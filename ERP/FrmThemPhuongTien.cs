@@ -1,5 +1,5 @@
-using System;
-using System.Data.SqlClient;
+﻿using System;
+using Npgsql;
 using System.Windows.Forms;
 using ERP.DucAnh.DAL;
 
@@ -55,12 +55,12 @@ namespace ERP
             string query = @"INSERT INTO PhuongTien (BienSoXe, LoaiXe, TaiTrong, TenTaiXe, TrangThaiXe, KichHoat) 
                              VALUES (@BienSoXe, @LoaiXe, @TaiTrong, @TenTaiXe, @TrangThaiXe, @KichHoat)";
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    SqlCommand cmd = new SqlCommand(query, conn);
+                    NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
 
                     cmd.Parameters.AddWithValue("@BienSoXe", bienSoXe);
                     cmd.Parameters.AddWithValue("@LoaiXe", loaiXe);
@@ -75,10 +75,10 @@ namespace ERP
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }
-                catch (SqlException ex)
+                catch (PostgresException ex)
                 {
                     // Lỗi mã 2627: Trùng khóa chính (Biển số xe đã tồn tại)
-                    if (ex.Number == 2627)
+                    if (ex.SqlState == "23505")
                     {
                         MessageBox.Show("Biển số xe này đã tồn tại trong hệ thống. Vui lòng nhập biển số khác!", "Lỗi trùng lặp", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         txtBienSoXe.Focus();
@@ -102,3 +102,5 @@ namespace ERP
         }
     }
 }
+
+

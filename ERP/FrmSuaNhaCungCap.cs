@@ -1,5 +1,5 @@
-using System;
-using System.Data.SqlClient;
+﻿using System;
+using Npgsql;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using ERP.DucAnh.DAL;
@@ -29,15 +29,15 @@ namespace ERP
         private void LoadThongTinNhaCungCap()
         {
             string query = "SELECT * FROM NhaCungCap WHERE ID_NCC = @ID_NCC";
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    SqlCommand cmd = new SqlCommand(query, conn);
+                    NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@ID_NCC", idNccToEdit);
 
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
                         {
@@ -124,12 +124,12 @@ namespace ERP
                              NgayHetHan = @NgayHetHan 
                              WHERE ID_NCC = @ID_NCC";
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    SqlCommand cmd = new SqlCommand(query, conn);
+                    NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
 
                     cmd.Parameters.AddWithValue("@ID_NCC", idNccToEdit);
                     cmd.Parameters.AddWithValue("@TenNCC", tenNcc);
@@ -146,9 +146,9 @@ namespace ERP
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }
-                catch (SqlException ex)
+                catch (PostgresException ex)
                 {
-                    if (ex.Number == 547) // Lỗi vi phạm CHECK constraint CK_NhaCungCap_Ngay
+                    if ((ex.SqlState == "23503" || ex.SqlState == "23514")) // Lỗi vi phạm CHECK constraint CK_NhaCungCap_Ngay
                     {
                         MessageBox.Show("Ngày hết hạn phải lớn hơn hoặc bằng Ngày cấp chứng nhận!", "Lỗi ràng buộc dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
@@ -170,3 +170,5 @@ namespace ERP
         }
     }
 }
+
+

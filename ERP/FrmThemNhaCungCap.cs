@@ -1,5 +1,5 @@
-using System;
-using System.Data.SqlClient;
+﻿using System;
+using Npgsql;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using ERP.DucAnh.DAL;
@@ -63,12 +63,12 @@ namespace ERP
                              VALUES 
                              (@ID_NCC, @TenNCC, @DiaChi, @SDT, @TenChungNhan, @SoHieuCN, @NgayCap, @NgayHetHan)";
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    SqlCommand cmd = new SqlCommand(query, conn);
+                    NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
 
                     // Truyền tham số an toàn chống SQL Injection
                     cmd.Parameters.AddWithValue("@ID_NCC", idNcc);
@@ -88,13 +88,13 @@ namespace ERP
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }
-                catch (SqlException ex)
+                catch (PostgresException ex)
                 {
-                    if (ex.Number == 2627) // Lỗi trùng khóa chính (Primary Key)
+                    if (ex.SqlState == "23505") // Lỗi trùng khóa chính (Primary Key)
                     {
                         MessageBox.Show($"Mã nhà cung cấp '{idNcc}' đã tồn tại trong hệ thống. Vui lòng nhập mã khác!", "Lỗi trùng lặp", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-                    else if (ex.Number == 547) // Lỗi vi phạm CHECK constraint CK_NhaCungCap_Ngay
+                    else if ((ex.SqlState == "23503" || ex.SqlState == "23514")) // Lỗi vi phạm CHECK constraint CK_NhaCungCap_Ngay
                     {
                         MessageBox.Show("Ngày hết hạn phải lớn hơn hoặc bằng Ngày cấp chứng nhận!", "Lỗi ràng buộc dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
@@ -116,3 +116,5 @@ namespace ERP
         }
     }
 }
+
+

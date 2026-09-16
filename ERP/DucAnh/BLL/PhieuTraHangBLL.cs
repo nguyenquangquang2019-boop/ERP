@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ERP.DucAnh.DAL;
 using ERP.DucAnh.DTO;
+using System.Data;
 
 namespace ERP.DucAnh.BLL
 {
@@ -39,6 +40,31 @@ namespace ERP.DucAnh.BLL
             return dal.GetDanhSachMaDVC();
         }
 
+        public Dictionary<string, string> GetDanhSachDVC()
+        {
+            return dal.GetDanhSachDVC();
+        }
+
+        public List<string> GetDanhSachXeKhaDung()
+        {
+            return dal.GetDanhSachXeKhaDung();
+        }
+
+        public List<string> GetDanhSachLoaiXeRanh()
+        {
+            return dal.GetDanhSachLoaiXeRanh();
+        }
+
+        public DataTable GetAllPhuongTienRanh()
+        {
+            return dal.GetAllPhuongTienRanh();
+        }
+
+        public ThongTinYeuCau GetThongTinYeuCau(string idCTYC)
+        {
+            return dal.GetThongTinYeuCau(idCTYC);
+        }
+
         // [Nghiệp vụ A2]: Lọc tìm kiếm và kiểm tra ngày kết thúc >= ngày bắt đầu
         public List<PhieuTraHang> TimKiem(string keyword, DateTime tuNgay, DateTime denNgay, string trangThai)
         {
@@ -70,6 +96,11 @@ namespace ERP.DucAnh.BLL
             if (string.IsNullOrWhiteSpace(p.ID_CTYC))
             {
                 throw new Exception("Mã chi tiết yêu cầu không được để trống!");
+            }
+
+            if (string.IsNullOrWhiteSpace(p.BienSoXe))
+            {
+                throw new Exception("Vui lòng chọn xe tải đi thu hồi!");
             }
 
             if (dal.GetByID(p.ID_PhieuTra.Trim()) != null)
@@ -116,6 +147,11 @@ namespace ERP.DucAnh.BLL
             if (string.IsNullOrWhiteSpace(p.ID_CTYC))
             {
                 throw new Exception("Mã chi tiết yêu cầu không được để trống!");
+            }
+
+            if (string.IsNullOrWhiteSpace(p.BienSoXe))
+            {
+                throw new Exception("Vui lòng chọn xe tải đi thu hồi!");
             }
 
             PhieuTraHang hienTai = dal.GetByID(p.ID_PhieuTra.Trim());

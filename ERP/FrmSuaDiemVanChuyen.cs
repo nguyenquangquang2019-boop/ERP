@@ -1,5 +1,5 @@
-using System;
-using System.Data.SqlClient;
+﻿using System;
+using Npgsql;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using ERP.DucAnh.DAL;
@@ -30,15 +30,15 @@ namespace ERP
         private void LoadThongTinDiemVanChuyen()
         {
             string query = "SELECT * FROM DiemVanChuyen WHERE MaDVC = @MaDVC";
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    SqlCommand cmd = new SqlCommand(query, conn);
+                    NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@MaDVC", maDvcToEdit);
 
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
                         {
@@ -91,12 +91,12 @@ namespace ERP
                              TenNguoiDaiDien = @TenNguoiDaiDien 
                              WHERE MaDVC = @MaDVC";
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    SqlCommand cmd = new SqlCommand(query, conn);
+                    NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
 
                     cmd.Parameters.AddWithValue("@MaDVC", maDvcToEdit);
                     cmd.Parameters.AddWithValue("@TenDVC", tenDVC);
