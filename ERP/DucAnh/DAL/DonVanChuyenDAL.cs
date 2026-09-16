@@ -203,7 +203,7 @@ namespace ERP.DucAnh.DAL
             }
         }
 
-        // 7. Lấy danh sách BienSoXe từ bảng PhuongTien có KichHoat = 1 VÀ TrangThaiXe = 'Sẵn sàng'
+        // 7. Lấy danh sách BienSoXe từ bảng PhuongTien có KichHoat = 1 VÀ TrangThaiXe là 'Đang rảnh' hoặc 'Sẵn sàng'
         //    VÀ không nằm trong đơn vận chuyển nào đang có TrangThaiDon = 'Đang vận chuyển'
         public List<string> GetDanhSachXeKhaDung()
         {
@@ -211,7 +211,7 @@ namespace ERP.DucAnh.DAL
             const string query = @"SELECT BienSoXe
                                    FROM PhuongTien
                                    WHERE KichHoat = 1
-                                     AND TrangThaiXe = N'Sẵn sàng'
+                                     AND (TrangThaiXe = N'Đang rảnh' OR TrangThaiXe = N'Sẵn sàng' OR TrangThaiXe IS NULL)
                                      AND BienSoXe NOT IN (
                                          SELECT BienSoXe
                                          FROM DonVanChuyen
