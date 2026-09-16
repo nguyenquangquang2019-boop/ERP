@@ -104,6 +104,7 @@ namespace ERP
             // cboSanPham
             // 
             this.cboSanPham.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboSanPham.DropDownWidth = 350;
             this.cboSanPham.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.cboSanPham.FormattingEnabled = true;
             this.cboSanPham.Location = new System.Drawing.Point(180, 157);

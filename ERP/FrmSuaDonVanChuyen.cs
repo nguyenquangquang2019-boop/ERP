@@ -43,10 +43,10 @@ namespace ERP
                     cboBienSoXe.Items.Add(xe);
                 }
 
-                // 3. Sản phẩm
-                List<string> dsSP = bll.LayDanhSachSanPham();
+                // 3. Sản phẩm (Mã hàng kèm Tên hàng)
+                List<SanPhamComboItem> dsSP = bll.LayDanhSachSanPhamWithTen();
                 cboSanPham.Items.Clear();
-                foreach (string sp in dsSP)
+                foreach (SanPhamComboItem sp in dsSP)
                 {
                     cboSanPham.Items.Add(sp);
                 }
@@ -72,8 +72,22 @@ namespace ERP
                     if (!cboBienSoXe.Items.Contains(don.BienSoXe)) cboBienSoXe.Items.Add(don.BienSoXe);
                     cboBienSoXe.SelectedItem = don.BienSoXe;
 
-                    if (!cboSanPham.Items.Contains(don.ID_SP)) cboSanPham.Items.Add(don.ID_SP);
-                    cboSanPham.SelectedItem = don.ID_SP;
+                    bool spFound = false;
+                    foreach (object item in cboSanPham.Items)
+                    {
+                        if (item is SanPhamComboItem spItem && spItem.ID_SP == don.ID_SP)
+                        {
+                            cboSanPham.SelectedItem = item;
+                            spFound = true;
+                            break;
+                        }
+                    }
+                    if (!spFound && !string.IsNullOrEmpty(don.ID_SP))
+                    {
+                        SanPhamComboItem fallbackItem = new SanPhamComboItem { ID_SP = don.ID_SP, TenHang = don.TenHang ?? "" };
+                        cboSanPham.Items.Add(fallbackItem);
+                        cboSanPham.SelectedItem = fallbackItem;
+                    }
 
                     txtSoLuongGiao.Text = don.SoLuongGiao.ToString();
                     if (don.ThoiGianKhoiHanh != DateTime.MinValue)
@@ -100,7 +114,7 @@ namespace ERP
         {
             string maDVC = cboMaDVC.SelectedItem?.ToString();
             string bienSo = cboBienSoXe.SelectedItem?.ToString();
-            string sanPham = cboSanPham.SelectedItem?.ToString();
+            string sanPham = (cboSanPham.SelectedItem as SanPhamComboItem)?.ID_SP ?? cboSanPham.SelectedItem?.ToString();
             string strSoLuong = txtSoLuongGiao.Text.Trim();
             DateTime thoiGianGiao = dtpThoiGianKhoiHanh.Value;
             string trangThai = cboTrangThaiDon.SelectedItem?.ToString();

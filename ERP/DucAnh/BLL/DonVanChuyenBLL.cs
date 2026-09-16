@@ -45,6 +45,11 @@ namespace ERP.DucAnh.BLL
             return dal.GetDanhSachSanPham();
         }
 
+        public List<SanPhamComboItem> LayDanhSachSanPhamWithTen()
+        {
+            return dal.GetDanhSachSanPhamWithTen();
+        }
+
         public bool ThemDon(DonVanChuyen don)
         {
             if (don == null)

@@ -10,6 +10,7 @@ namespace ERP.DucAnh.DTO
         public string BienSoXe { get; set; }
         public string MaDVC { get; set; }
         public string ID_SP { get; set; }
+        public string TenHang { get; set; }
         public int SoLuongGiao { get; set; }
         public DateTime ThoiGianKhoiHanh { get; set; }
         public string TrangThaiDon
@@ -27,6 +28,27 @@ namespace ERP.DucAnh.DTO
                 }
                 _trangThaiDon = value;
             }
+        }
+    }
+
+    public class SanPhamComboItem
+    {
+        public string ID_SP { get; set; }
+        public string TenHang { get; set; }
+
+        public string DisplayText
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(TenHang))
+                    return ID_SP;
+                return $"{ID_SP} - {TenHang}";
+            }
+        }
+
+        public override string ToString()
+        {
+            return DisplayText;
         }
     }
 }

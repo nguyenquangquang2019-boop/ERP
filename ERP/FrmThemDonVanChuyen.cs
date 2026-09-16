@@ -45,10 +45,10 @@ namespace ERP
                 }
                 if (cboBienSoXe.Items.Count > 0) cboBienSoXe.SelectedIndex = 0;
 
-                // 3. Nạp danh sách sản phẩm
-                List<string> dsSP = bll.LayDanhSachSanPham();
+                // 3. Nạp danh sách sản phẩm (Mã hàng kèm Tên hàng)
+                List<SanPhamComboItem> dsSP = bll.LayDanhSachSanPhamWithTen();
                 cboSanPham.Items.Clear();
-                foreach (string sp in dsSP)
+                foreach (SanPhamComboItem sp in dsSP)
                 {
                     cboSanPham.Items.Add(sp);
                 }
@@ -65,7 +65,7 @@ namespace ERP
             string maDon = txtIDDonVC.Text.Trim();
             string maDVC = cboMaDVC.SelectedItem?.ToString();
             string bienSo = cboBienSoXe.SelectedItem?.ToString();
-            string sanPham = cboSanPham.SelectedItem?.ToString();
+            string sanPham = (cboSanPham.SelectedItem as SanPhamComboItem)?.ID_SP ?? cboSanPham.SelectedItem?.ToString();
             string strSoLuong = txtSoLuongGiao.Text.Trim();
             DateTime thoiGianGiao = dtpThoiGianKhoiHanh.Value;
 

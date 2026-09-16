@@ -54,9 +54,12 @@ namespace ERP.DucAnh.DAL
         public List<DonVanChuyen> GetAll()
         {
             List<DonVanChuyen> list = new List<DonVanChuyen>();
-            const string query = @"SELECT ID_DonVC, BienSoXe, MaDVC, ID_SP, SoLuongGiao, ThoiGianKhoiHanh, TrangThaiDon
-                                   FROM DonVanChuyen
-                                   ORDER BY ThoiGianKhoiHanh DESC";
+            const string query = @"SELECT DVC.ID_DonVC, DVC.BienSoXe, DVC.MaDVC, DVC.ID_SP, DVC.SoLuongGiao, DVC.ThoiGianKhoiHanh, DVC.TrangThaiDon,
+                                          ISNULL(HH.TenHang, SP.LoaiSP) AS TenHang
+                                   FROM DonVanChuyen DVC
+                                   LEFT JOIN SanPham SP ON DVC.ID_SP = SP.ID_SP
+                                   LEFT JOIN HangHoa HH ON SP.MaHang = HH.MaHang
+                                   ORDER BY DVC.ThoiGianKhoiHanh DESC";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             using (SqlCommand command = new SqlCommand(query, connection))
@@ -72,6 +75,7 @@ namespace ERP.DucAnh.DAL
                             BienSoXe = reader["BienSoXe"] != DBNull.Value ? reader["BienSoXe"].ToString() : string.Empty,
                             MaDVC = reader["MaDVC"] != DBNull.Value ? reader["MaDVC"].ToString() : string.Empty,
                             ID_SP = reader["ID_SP"] != DBNull.Value ? reader["ID_SP"].ToString() : string.Empty,
+                            TenHang = reader["TenHang"] != DBNull.Value ? reader["TenHang"].ToString() : string.Empty,
                             SoLuongGiao = reader["SoLuongGiao"] != DBNull.Value ? Convert.ToInt32(reader["SoLuongGiao"]) : 0,
                             ThoiGianKhoiHanh = reader["ThoiGianKhoiHanh"] != DBNull.Value ? Convert.ToDateTime(reader["ThoiGianKhoiHanh"]) : DateTime.MinValue,
                             TrangThaiDon = reader["TrangThaiDon"] != DBNull.Value ? reader["TrangThaiDon"].ToString() : string.Empty
@@ -84,9 +88,12 @@ namespace ERP.DucAnh.DAL
 
         public DonVanChuyen GetByID(string id)
         {
-            const string query = @"SELECT ID_DonVC, BienSoXe, MaDVC, ID_SP, SoLuongGiao, ThoiGianKhoiHanh, TrangThaiDon
-                                   FROM DonVanChuyen
-                                   WHERE ID_DonVC = @ID_DonVC";
+            const string query = @"SELECT DVC.ID_DonVC, DVC.BienSoXe, DVC.MaDVC, DVC.ID_SP, DVC.SoLuongGiao, DVC.ThoiGianKhoiHanh, DVC.TrangThaiDon,
+                                          ISNULL(HH.TenHang, SP.LoaiSP) AS TenHang
+                                   FROM DonVanChuyen DVC
+                                   LEFT JOIN SanPham SP ON DVC.ID_SP = SP.ID_SP
+                                   LEFT JOIN HangHoa HH ON SP.MaHang = HH.MaHang
+                                   WHERE DVC.ID_DonVC = @ID_DonVC";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             using (SqlCommand command = new SqlCommand(query, connection))
@@ -103,6 +110,7 @@ namespace ERP.DucAnh.DAL
                             BienSoXe = reader["BienSoXe"] != DBNull.Value ? reader["BienSoXe"].ToString() : string.Empty,
                             MaDVC = reader["MaDVC"] != DBNull.Value ? reader["MaDVC"].ToString() : string.Empty,
                             ID_SP = reader["ID_SP"] != DBNull.Value ? reader["ID_SP"].ToString() : string.Empty,
+                            TenHang = reader["TenHang"] != DBNull.Value ? reader["TenHang"].ToString() : string.Empty,
                             SoLuongGiao = reader["SoLuongGiao"] != DBNull.Value ? Convert.ToInt32(reader["SoLuongGiao"]) : 0,
                             ThoiGianKhoiHanh = reader["ThoiGianKhoiHanh"] != DBNull.Value ? Convert.ToDateTime(reader["ThoiGianKhoiHanh"]) : DateTime.MinValue,
                             TrangThaiDon = reader["TrangThaiDon"] != DBNull.Value ? reader["TrangThaiDon"].ToString() : string.Empty
@@ -184,12 +192,18 @@ namespace ERP.DucAnh.DAL
         public List<DonVanChuyen> Search(string keyword)
         {
             List<DonVanChuyen> list = new List<DonVanChuyen>();
-            const string query = @"SELECT ID_DonVC, BienSoXe, MaDVC, ID_SP, SoLuongGiao, ThoiGianKhoiHanh, TrangThaiDon
-                                   FROM DonVanChuyen
-                                   WHERE ID_DonVC LIKE @Keyword
-                                      OR BienSoXe LIKE @Keyword
-                                      OR MaDVC LIKE @Keyword
-                                   ORDER BY ThoiGianKhoiHanh DESC";
+            const string query = @"SELECT DVC.ID_DonVC, DVC.BienSoXe, DVC.MaDVC, DVC.ID_SP, DVC.SoLuongGiao, DVC.ThoiGianKhoiHanh, DVC.TrangThaiDon,
+                                          ISNULL(HH.TenHang, SP.LoaiSP) AS TenHang
+                                   FROM DonVanChuyen DVC
+                                   LEFT JOIN SanPham SP ON DVC.ID_SP = SP.ID_SP
+                                   LEFT JOIN HangHoa HH ON SP.MaHang = HH.MaHang
+                                   WHERE DVC.ID_DonVC LIKE @Keyword
+                                      OR DVC.BienSoXe LIKE @Keyword
+                                      OR DVC.MaDVC LIKE @Keyword
+                                      OR DVC.ID_SP LIKE @Keyword
+                                      OR HH.TenHang LIKE @Keyword
+                                      OR SP.LoaiSP LIKE @Keyword
+                                   ORDER BY DVC.ThoiGianKhoiHanh DESC";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             using (SqlCommand command = new SqlCommand(query, connection))
@@ -208,6 +222,7 @@ namespace ERP.DucAnh.DAL
                             BienSoXe = reader["BienSoXe"] != DBNull.Value ? reader["BienSoXe"].ToString() : string.Empty,
                             MaDVC = reader["MaDVC"] != DBNull.Value ? reader["MaDVC"].ToString() : string.Empty,
                             ID_SP = reader["ID_SP"] != DBNull.Value ? reader["ID_SP"].ToString() : string.Empty,
+                            TenHang = reader["TenHang"] != DBNull.Value ? reader["TenHang"].ToString() : string.Empty,
                             SoLuongGiao = reader["SoLuongGiao"] != DBNull.Value ? Convert.ToInt32(reader["SoLuongGiao"]) : 0,
                             ThoiGianKhoiHanh = reader["ThoiGianKhoiHanh"] != DBNull.Value ? Convert.ToDateTime(reader["ThoiGianKhoiHanh"]) : DateTime.MinValue,
                             TrangThaiDon = reader["TrangThaiDon"] != DBNull.Value ? reader["TrangThaiDon"].ToString() : string.Empty
@@ -311,6 +326,34 @@ namespace ERP.DucAnh.DAL
                         {
                             list.Add(reader["ID_SP"].ToString());
                         }
+                    }
+                }
+            }
+            return list;
+        }
+
+        // 9.1 Lấy danh sách SanPham kèm TenHang (từ SanPham join HangHoa)
+        public List<SanPhamComboItem> GetDanhSachSanPhamWithTen()
+        {
+            List<SanPhamComboItem> list = new List<SanPhamComboItem>();
+            const string query = @"SELECT SP.ID_SP, ISNULL(HH.TenHang, SP.LoaiSP) AS TenHang
+                                   FROM SanPham SP
+                                   LEFT JOIN HangHoa HH ON SP.MaHang = HH.MaHang
+                                   ORDER BY SP.ID_SP ASC";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                connection.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(new SanPhamComboItem
+                        {
+                            ID_SP = reader["ID_SP"] != DBNull.Value ? reader["ID_SP"].ToString() : string.Empty,
+                            TenHang = reader["TenHang"] != DBNull.Value ? reader["TenHang"].ToString() : string.Empty
+                        });
                     }
                 }
             }

@@ -94,12 +94,22 @@ namespace ERP
             // 4. Mã Sản Phẩm (ID_SP)
             DataGridViewTextBoxColumn colSP = new DataGridViewTextBoxColumn();
             colSP.Name = "colID_SP";
-            colSP.HeaderText = "MÃ SẢN PHẨM";
+            colSP.HeaderText = "MÃ SP";
             colSP.DataPropertyName = "ID_SP";
-            colSP.FillWeight = 14;
+            colSP.FillWeight = 10;
             colSP.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             colSP.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
             dgvData.Columns.Add(colSP);
+
+            // 4.1 Tên Hàng Hóa (TenHang)
+            DataGridViewTextBoxColumn colTenHang = new DataGridViewTextBoxColumn();
+            colTenHang.Name = "colTenHang";
+            colTenHang.HeaderText = "TÊN HÀNG HÓA";
+            colTenHang.DataPropertyName = "TenHang";
+            colTenHang.FillWeight = 20;
+            colTenHang.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            colTenHang.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dgvData.Columns.Add(colTenHang);
 
             // 5. Số Lượng Giao (SoLuongGiao)
             DataGridViewTextBoxColumn colSL = new DataGridViewTextBoxColumn();
