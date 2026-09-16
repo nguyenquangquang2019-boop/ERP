@@ -198,7 +198,13 @@ namespace ERP
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Mở Form thêm Phương tiện mới!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            FrmThemPhuongTien frmThem = new FrmThemPhuongTien();
+
+            // Nếu thêm dữ liệu thành công (DialogResult.OK), hệ thống sẽ tự động load lại bảng dữ liệu
+            if (frmThem.ShowDialog() == DialogResult.OK)
+            {
+                LoadDataXe();
+            }
         }
 
         private void btnEdit_Click(object sender, EventArgs e)
@@ -206,7 +212,18 @@ namespace ERP
             if (dgvData.CurrentRow != null)
             {
                 string bienSo = dgvData.CurrentRow.Cells["colBienSoXe"].Value?.ToString();
-                MessageBox.Show($"Chỉnh sửa thông tin phương tiện biển số: {bienSo}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                if (!string.IsNullOrEmpty(bienSo))
+                {
+                    // Gọi Form Sửa Phương Tiện và truyền biển số xe vào
+                    FrmSuaPhuongTien frmSua = new FrmSuaPhuongTien(bienSo);
+
+                    // Nếu cập nhật thành công, load lại danh sách phương tiện
+                    if (frmSua.ShowDialog() == DialogResult.OK)
+                    {
+                        LoadDataXe();
+                    }
+                }
             }
             else
             {
@@ -216,14 +233,23 @@ namespace ERP
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
+            // 1. Kiểm tra xem người dùng đã chọn dòng nào trên bảng chưa
             if (dgvData.CurrentRow != null)
             {
-                string bienSo = dgvData.CurrentRow.Cells["colBienSoXe"].Value?.ToString();
+                // Lấy Biển số xe từ dòng đang chọn
+                string bienSoXe = dgvData.CurrentRow.Cells["colBienSoXe"].Value?.ToString();
+                string loaiXe = dgvData.CurrentRow.Cells["colLoaiXe"].Value?.ToString();
 
-                DialogResult dr = MessageBox.Show($"Bạn có chắc chắn muốn xóa phương tiện biển số [{bienSo}]?", "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (dr == DialogResult.Yes)
+                // 2. Hiển thị hộp thoại xác nhận trước khi xóa
+                DialogResult result = MessageBox.Show(
+                    $"Bạn có chắc chắn muốn xóa phương tiện biển số '{bienSoXe}' ({loaiXe}) không?",
+                    "Xác nhận xóa",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question
+                );
+
+                if (result == DialogResult.Yes)
                 {
-                    // Truy vấn xóa từ bảng PhuongTien
                     string query = "DELETE FROM PhuongTien WHERE BienSoXe = @BienSoXe";
 
                     using (SqlConnection conn = new SqlConnection(connectionString))
@@ -232,22 +258,42 @@ namespace ERP
                         {
                             conn.Open();
                             SqlCommand cmd = new SqlCommand(query, conn);
-                            cmd.Parameters.AddWithValue("@BienSoXe", bienSo);
-                            cmd.ExecuteNonQuery();
+                            cmd.Parameters.AddWithValue("@BienSoXe", bienSoXe);
 
-                            MessageBox.Show("Xóa phương tiện thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            LoadDataXe();
+                            int rowsAffected = cmd.ExecuteNonQuery();
+
+                            if (rowsAffected > 0)
+                            {
+                                MessageBox.Show("Xóa phương tiện thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                LoadDataXe();
+                            }
+                            else
+                            {
+                                MessageBox.Show("Không tìm thấy phương tiện cần xóa trong cơ sở dữ liệu.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                        catch (SqlException ex)
+                        {
+                            // Lỗi mã 547: Bị vướng khóa ngoại (Foreign Key) nếu phương tiện này đã được gán vào đơn vận chuyển hoặc bảng khác
+                            if (ex.Number == 547)
+                            {
+                                MessageBox.Show("Không thể xóa phương tiện này vì đã phát sinh dữ liệu liên quan (như đơn vận chuyển) trong hệ thống.", "Lỗi ràng buộc dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                            else
+                            {
+                                MessageBox.Show("Lỗi cơ sở dữ liệu: " + ex.Message, "Lỗi SQL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show("Không thể xóa phương tiện này do đang gắn liền với các Đơn vận chuyển: " + ex.Message, "Lỗi SQL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("Đã xảy ra lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                 }
             }
             else
             {
-                MessageBox.Show("Vui lòng chọn xe cần xóa!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Vui lòng chọn phương tiện cần xóa trên bảng!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 

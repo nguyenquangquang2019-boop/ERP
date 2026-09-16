@@ -47,6 +47,42 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FrmSuaDiemVanChuyen.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmSuaDiemVanChuyen.Designer.cs">
+      <DependentUpon>FrmSuaDiemVanChuyen.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmSuaNhaCungCap.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmSuaNhaCungCap.Designer.cs">
+      <DependentUpon>FrmSuaNhaCungCap.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmSuaPhuongTien.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmSuaPhuongTien.Designer.cs">
+      <DependentUpon>FrmSuaPhuongTien.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmThemDiemVanChuyen.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmThemDiemVanChuyen.Designer.cs">
+      <DependentUpon>FrmThemDiemVanChuyen.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmThemNhaCungCap.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmThemNhaCungCap.Designer.cs">
+      <DependentUpon>FrmThemNhaCungCap.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmThemPhuongTien.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmThemPhuongTien.Designer.cs">
+      <DependentUpon>FrmThemPhuongTien.cs</DependentUpon>
+    </Compile>
     <Compile Include="DucAnh\GUI\QuanLyDonVanChuyen.cs">
       <SubType>Form</SubType>
     </Compile>

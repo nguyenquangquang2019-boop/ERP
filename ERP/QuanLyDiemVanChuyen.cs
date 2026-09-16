@@ -164,7 +164,13 @@ namespace ERP
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Mở Form thêm Điểm vận chuyển mới!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            FrmThemDiemVanChuyen frmThem = new FrmThemDiemVanChuyen();
+
+            // Nếu thêm dữ liệu thành công (DialogResult.OK), hệ thống sẽ tự động load lại bảng dữ liệu
+            if (frmThem.ShowDialog() == DialogResult.OK)
+            {
+                LoadDataDiemVanChuyen();
+            }
         }
 
         private void btnEdit_Click(object sender, EventArgs e)
@@ -172,7 +178,18 @@ namespace ERP
             if (dgvData.CurrentRow != null)
             {
                 string maDVC = dgvData.CurrentRow.Cells["colMaDVC"].Value?.ToString();
-                MessageBox.Show($"Chỉnh sửa điểm vận chuyển: {maDVC}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                if (!string.IsNullOrEmpty(maDVC))
+                {
+                    // Gọi Form Sửa Điểm Vận Chuyển
+                    FrmSuaDiemVanChuyen frmSua = new FrmSuaDiemVanChuyen(maDVC);
+
+                    // Nếu bấm Lưu thành công, load lại danh sách
+                    if (frmSua.ShowDialog() == DialogResult.OK)
+                    {
+                        LoadDataDiemVanChuyen();
+                    }
+                }
             }
             else
             {
@@ -182,12 +199,22 @@ namespace ERP
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
+            // 1. Kiểm tra xem người dùng đã chọn dòng nào trên bảng chưa
             if (dgvData.CurrentRow != null)
             {
+                // Lấy Mã DVC và Tên DVC từ dòng đang chọn
                 string maDVC = dgvData.CurrentRow.Cells["colMaDVC"].Value?.ToString();
+                string tenDVC = dgvData.CurrentRow.Cells["colTenDVC"].Value?.ToString();
 
-                DialogResult dr = MessageBox.Show($"Bạn có chắc chắn muốn xóa Điểm vận chuyển [{maDVC}]?", "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (dr == DialogResult.Yes)
+                // 2. Hiển thị hộp thoại xác nhận trước khi xóa
+                DialogResult result = MessageBox.Show(
+                    $"Bạn có chắc chắn muốn xóa điểm vận chuyển '{tenDVC} ({maDVC})' không?",
+                    "Xác nhận xóa",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question
+                );
+
+                if (result == DialogResult.Yes)
                 {
                     string query = "DELETE FROM DiemVanChuyen WHERE MaDVC = @MaDVC";
 
@@ -198,21 +225,41 @@ namespace ERP
                             conn.Open();
                             SqlCommand cmd = new SqlCommand(query, conn);
                             cmd.Parameters.AddWithValue("@MaDVC", maDVC);
-                            cmd.ExecuteNonQuery();
 
-                            MessageBox.Show("Xóa điểm vận chuyển thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            LoadDataDiemVanChuyen();
+                            int rowsAffected = cmd.ExecuteNonQuery();
+
+                            if (rowsAffected > 0)
+                            {
+                                MessageBox.Show("Xóa điểm vận chuyển thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                LoadDataDiemVanChuyen();
+                            }
+                            else
+                            {
+                                MessageBox.Show("Không tìm thấy điểm vận chuyển cần xóa trong cơ sở dữ liệu.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                        catch (SqlException ex)
+                        {
+                            // Lỗi mã 547: Bị vướng khóa ngoại (Foreign Key)
+                            if (ex.Number == 547)
+                            {
+                                MessageBox.Show("Không thể xóa điểm vận chuyển này vì đã phát sinh dữ liệu liên quan trong hệ thống.", "Lỗi ràng buộc dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                            else
+                            {
+                                MessageBox.Show("Lỗi cơ sở dữ liệu: " + ex.Message, "Lỗi SQL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show("Không thể xóa điểm này do đang được sử dụng ở đơn vận chuyển: " + ex.Message, "Lỗi SQL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("Đã xảy ra lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                 }
             }
             else
             {
-                MessageBox.Show("Vui lòng chọn Điểm vận chuyển cần xóa!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Vui lòng chọn Điểm vận chuyển cần xóa trên bảng!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 

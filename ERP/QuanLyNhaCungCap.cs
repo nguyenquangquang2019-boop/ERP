@@ -86,7 +86,13 @@ namespace ERP
 
         private void LoadDataNhaCungCap()
         {
-            string query = "SELECT ID_NCC, TenNCC, DiaChi, SDT, ISNULL(TenChungNhan, N'Không có') AS TenChungNhan FROM NhaCungCap ORDER BY ID_NCC DESC";
+            // Lấy đúng các cột có trong bảng NhaCungCap
+            string query = @"SELECT ID_NCC, TenNCC, DiaChi, SDT, 
+                            ISNULL(TenChungNhan, N'Không có') AS TenChungNhan, 
+                            ISNULL(SoHieuCN, N'') AS SoHieuCN, 
+                            NgayCap, NgayHetHan 
+                     FROM NhaCungCap 
+                     ORDER BY ID_NCC DESC";
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -124,18 +130,25 @@ namespace ERP
         {
             if (dtNCC == null) return;
 
+            // Lấy từ khóa tìm kiếm và chống lỗi cú pháp SQL injection cho DataView RowFilter
             string keyword = txtSearch.Text.Trim().Replace("'", "''");
-            if (keyword == "🔍 Tìm kiếm theo Mã, Tên nhà cung cấp, SĐT...") keyword = "";
+            if (keyword == "🔍 Tìm kiếm theo Mã, Tên nhà cung cấp, SĐT..." || string.IsNullOrEmpty(keyword))
+            {
+                keyword = "";
+            }
 
             DataView dv = dtNCC.DefaultView;
-            string filter = "1=1";
 
             if (!string.IsNullOrEmpty(keyword))
             {
-                filter += $" AND (ID_NCC LIKE '%{keyword}%' OR TenNCC LIKE '%{keyword}%' OR SDT LIKE '%{keyword}%' OR DiaChi LIKE '%{keyword}%')";
+                // Cho phép tìm kiếm linh hoạt trên Mã, Tên, SĐT, Địa chỉ hoặc Tên chứng nhận
+                dv.RowFilter = $"ID_NCC LIKE '%{keyword}%' OR TenNCC LIKE '%{keyword}%' OR SDT LIKE '%{keyword}%' OR DiaChi LIKE '%{keyword}%' OR TenChungNhan LIKE '%{keyword}%'";
+            }
+            else
+            {
+                dv.RowFilter = ""; // Hiển thị toàn bộ nếu không nhập từ khóa
             }
 
-            dv.RowFilter = filter;
             dgvData.DataSource = dv;
         }
 
@@ -163,8 +176,13 @@ namespace ERP
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Chức năng thêm Nhà cung cấp mới!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            // Gọi Form Thêm NCC tại đây nếu có
+            FrmThemNhaCungCap frmThem = new FrmThemNhaCungCap();
+
+            // Nếu thêm dữ liệu thành công (DialogResult.OK), hệ thống sẽ tự động load lại bảng dữ liệu
+            if (frmThem.ShowDialog() == DialogResult.OK)
+            {
+                LoadDataNhaCungCap();
+            }
         }
 
         private void btnEdit_Click(object sender, EventArgs e)
@@ -172,8 +190,19 @@ namespace ERP
             if (dgvData.CurrentRow != null)
             {
                 string idNCC = dgvData.CurrentRow.Cells["colID_NCC"].Value?.ToString();
-                MessageBox.Show($"Chỉnh sửa nhà cung cấp: {idNCC}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                // Gọi Form Sửa NCC tại đây nếu có
+
+                // Kiểm tra xem mã lấy ra có rỗng không trước khi mở form
+                if (!string.IsNullOrEmpty(idNCC))
+                {
+                    // Gọi Form Sửa NCC và truyền vào idNCC
+                    FrmSuaNhaCungCap frmSua = new FrmSuaNhaCungCap(idNCC);
+
+                    // Nếu người dùng bấm lưu thành công (DialogResult.OK), load lại bảng dữ liệu
+                    if (frmSua.ShowDialog() == DialogResult.OK)
+                    {
+                        LoadDataNhaCungCap();
+                    }
+                }
             }
             else
             {
@@ -183,12 +212,22 @@ namespace ERP
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
+            // 1. Kiểm tra xem người dùng đã chọn dòng nào trên bảng chưa
             if (dgvData.CurrentRow != null)
             {
+                // Lấy mã NCC từ dòng đang chọn
                 string idNCC = dgvData.CurrentRow.Cells["colID_NCC"].Value?.ToString();
+                string tenNCC = dgvData.CurrentRow.Cells["colTenNCC"].Value?.ToString();
 
-                DialogResult dr = MessageBox.Show($"Bạn có chắc chắn muốn xóa Nhà cung cấp {idNCC}?", "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (dr == DialogResult.Yes)
+                // 2. Hiện hộp thoại xác nhận trước khi xóa
+                DialogResult result = MessageBox.Show(
+                    $"Bạn có chắc chắn muốn xóa nhà cung cấp '{tenNCC} ({idNCC})' không?",
+                    "Xác nhận xóa",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question
+                );
+
+                if (result == DialogResult.Yes)
                 {
                     string query = "DELETE FROM NhaCungCap WHERE ID_NCC = @ID_NCC";
 
@@ -199,21 +238,41 @@ namespace ERP
                             conn.Open();
                             SqlCommand cmd = new SqlCommand(query, conn);
                             cmd.Parameters.AddWithValue("@ID_NCC", idNCC);
-                            cmd.ExecuteNonQuery();
 
-                            MessageBox.Show("Xóa nhà cung cấp thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            LoadDataNhaCungCap();
+                            int rowsAffected = cmd.ExecuteNonQuery();
+
+                            if (rowsAffected > 0)
+                            {
+                                MessageBox.Show("Xóa nhà cung cấp thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                LoadDataNhaCungCap();
+                            }
+                            else
+                            {
+                                MessageBox.Show("Không tìm thấy nhà cung cấp cần xóa trong cơ sở dữ liệu.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                        catch (SqlException ex)
+                        {
+                            // Lỗi mã 547 thường do vướng khóa ngoại (Foreign Key)
+                            if (ex.Number == 547)
+                            {
+                                MessageBox.Show("Không thể xóa nhà cung cấp này vì đã phát sinh dữ liệu liên quan (như phiếu nhập hàng, sản phẩm,...).", "Lỗi ràng buộc dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                            else
+                            {
+                                MessageBox.Show("Lỗi cơ sở dữ liệu: " + ex.Message, "Lỗi SQL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show("Không thể xóa nhà cung cấp này do có liên kết sản phẩm: " + ex.Message, "Lỗi SQL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("Đã xảy ra lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                 }
             }
             else
             {
-                MessageBox.Show("Vui lòng chọn Nhà cung cấp cần xóa!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Vui lòng chọn Nhà cung cấp cần xóa trên bảng!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
