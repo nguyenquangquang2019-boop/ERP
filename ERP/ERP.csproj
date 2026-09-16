@@ -83,6 +83,18 @@
     <Compile Include="FrmThemPhuongTien.Designer.cs">
       <DependentUpon>FrmThemPhuongTien.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmThemDonVanChuyen.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmThemDonVanChuyen.Designer.cs">
+      <DependentUpon>FrmThemDonVanChuyen.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmSuaDonVanChuyen.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmSuaDonVanChuyen.Designer.cs">
+      <DependentUpon>FrmSuaDonVanChuyen.cs</DependentUpon>
+    </Compile>
     <Compile Include="DucAnh\GUI\QuanLyDonVanChuyen.cs">
       <SubType>Form</SubType>
     </Compile>

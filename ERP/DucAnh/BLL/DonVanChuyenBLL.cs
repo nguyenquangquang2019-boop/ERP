@@ -25,6 +25,11 @@ namespace ERP.DucAnh.BLL
             return dal.GetAll();
         }
 
+        public DonVanChuyen LayDonTheoID(string id)
+        {
+            return dal.GetByID(id);
+        }
+
         public List<string> LayDanhSachXeKhaDung()
         {
             return dal.GetDanhSachXeKhaDung();

@@ -82,6 +82,37 @@ namespace ERP.DucAnh.DAL
             return list;
         }
 
+        public DonVanChuyen GetByID(string id)
+        {
+            const string query = @"SELECT ID_DonVC, BienSoXe, MaDVC, ID_SP, SoLuongGiao, ThoiGianKhoiHanh, TrangThaiDon
+                                   FROM DonVanChuyen
+                                   WHERE ID_DonVC = @ID_DonVC";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.Add(new SqlParameter("@ID_DonVC", SqlDbType.NVarChar) { Value = id ?? string.Empty });
+                connection.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return new DonVanChuyen
+                        {
+                            ID_DonVC = reader["ID_DonVC"] != DBNull.Value ? reader["ID_DonVC"].ToString() : string.Empty,
+                            BienSoXe = reader["BienSoXe"] != DBNull.Value ? reader["BienSoXe"].ToString() : string.Empty,
+                            MaDVC = reader["MaDVC"] != DBNull.Value ? reader["MaDVC"].ToString() : string.Empty,
+                            ID_SP = reader["ID_SP"] != DBNull.Value ? reader["ID_SP"].ToString() : string.Empty,
+                            SoLuongGiao = reader["SoLuongGiao"] != DBNull.Value ? Convert.ToInt32(reader["SoLuongGiao"]) : 0,
+                            ThoiGianKhoiHanh = reader["ThoiGianKhoiHanh"] != DBNull.Value ? Convert.ToDateTime(reader["ThoiGianKhoiHanh"]) : DateTime.MinValue,
+                            TrangThaiDon = reader["TrangThaiDon"] != DBNull.Value ? reader["TrangThaiDon"].ToString() : string.Empty
+                        };
+                    }
+                }
+            }
+            return null;
+        }
+
         // 2. Thêm mới đơn vận chuyển
         public bool Insert(DonVanChuyen don)
         {
