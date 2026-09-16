@@ -1,14 +1,15 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
+using ERP.DucAnh.DAL;
 
 namespace ERP
 {
     public partial class QuanLyXe : Form
     {
-        private string connectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=ERP_BanHang_Full;Integrated Security=True";
+        private string connectionString = DatabaseConfig.GetConnectionString();
         private DataTable dtXe;
 
         public QuanLyXe()

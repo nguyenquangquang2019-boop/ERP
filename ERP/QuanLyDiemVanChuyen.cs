@@ -1,15 +1,16 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
+using ERP.DucAnh.DAL;
 
 namespace ERP
 {
     public partial class QuanLyDiemVanChuyen : Form
     {
-        // Chuỗi kết nối CSDL SQL Server ERP_BanHang_Full
-        private string connectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=ERP_BanHang_Full;Integrated Security=True";
+        // Chuỗi kết nối CSDL lấy từ cấu hình
+        private string connectionString = DatabaseConfig.GetConnectionString();
         private DataTable dtDiemVC;
 
         public QuanLyDiemVanChuyen()
