@@ -98,14 +98,22 @@ namespace ERP
                 return;
             }
 
+            // 3. Kiểm tra ràng buộc ngày (Ngày hết hạn >= Ngày cấp nếu cả 2 đều được nhập)
+            if (dtpNgayCap.Checked && dtpNgayHetHan.Checked && dtpNgayHetHan.Value.Date < dtpNgayCap.Value.Date)
+            {
+                MessageBox.Show("Ngày hết hạn phải lớn hơn hoặc bằng Ngày cấp chứng nhận!", "Lỗi ngày tháng", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                dtpNgayHetHan.Focus();
+                return;
+            }
+
             string tenNcc = txtTenNCC.Text.Trim();
             string diaChi = txtDiaChi.Text.Trim();
             string tenCN = txtTenCN.Text.Trim();
             string soHieuCN = txtSoHieuCN.Text.Trim();
-            DateTime ngayCap = dtpNgayCap.Value;
-            DateTime ngayHetHan = dtpNgayHetHan.Value;
+            DateTime ngayCap = dtpNgayCap.Value.Date;
+            DateTime ngayHetHan = dtpNgayHetHan.Value.Date;
 
-            // 3. Câu lệnh SQL UPDATE
+            // 4. Câu lệnh SQL UPDATE
             string query = @"UPDATE NhaCungCap SET 
                              TenNCC = @TenNCC, 
                              DiaChi = @DiaChi, 
@@ -137,6 +145,17 @@ namespace ERP
                     MessageBox.Show("Cập nhật nhà cung cấp thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     this.DialogResult = DialogResult.OK;
                     this.Close();
+                }
+                catch (SqlException ex)
+                {
+                    if (ex.Number == 547) // Lỗi vi phạm CHECK constraint CK_NhaCungCap_Ngay
+                    {
+                        MessageBox.Show("Ngày hết hạn phải lớn hơn hoặc bằng Ngày cấp chứng nhận!", "Lỗi ràng buộc dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Lỗi cơ sở dữ liệu: " + ex.Message, "Lỗi SQL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
                 catch (Exception ex)
                 {

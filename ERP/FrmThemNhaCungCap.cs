@@ -13,6 +13,8 @@ namespace ERP
         public FrmThemNhaCungCap()
         {
             InitializeComponent();
+            dtpNgayCap.Checked = false;
+            dtpNgayHetHan.Checked = false;
         }
 
         private void btnLuu_Click(object sender, EventArgs e)
@@ -39,15 +41,23 @@ namespace ERP
                 return;
             }
 
+            // 3. Kiểm tra ràng buộc ngày (Ngày hết hạn >= Ngày cấp nếu cả 2 đều được nhập)
+            if (dtpNgayCap.Checked && dtpNgayHetHan.Checked && dtpNgayHetHan.Value.Date < dtpNgayCap.Value.Date)
+            {
+                MessageBox.Show("Ngày hết hạn phải lớn hơn hoặc bằng Ngày cấp chứng nhận!", "Lỗi ngày tháng", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                dtpNgayHetHan.Focus();
+                return;
+            }
+
             string idNcc = txtID.Text.Trim();
             string tenNcc = txtTenNCC.Text.Trim();
             string diaChi = txtDiaChi.Text.Trim();
             string tenCN = txtTenCN.Text.Trim();
             string soHieuCN = txtSoHieuCN.Text.Trim();
-            DateTime ngayCap = dtpNgayCap.Value;
-            DateTime ngayHetHan = dtpNgayHetHan.Value;
+            DateTime ngayCap = dtpNgayCap.Value.Date;
+            DateTime ngayHetHan = dtpNgayHetHan.Value.Date;
 
-            // 3. Câu lệnh SQL INSERT (Không còn FileScanCN)
+            // 4. Câu lệnh SQL INSERT (Không còn FileScanCN)
             string query = @"INSERT INTO NhaCungCap 
                              (ID_NCC, TenNCC, DiaChi, SDT, TenChungNhan, SoHieuCN, NgayCap, NgayHetHan) 
                              VALUES 
@@ -83,6 +93,10 @@ namespace ERP
                     if (ex.Number == 2627) // Lỗi trùng khóa chính (Primary Key)
                     {
                         MessageBox.Show($"Mã nhà cung cấp '{idNcc}' đã tồn tại trong hệ thống. Vui lòng nhập mã khác!", "Lỗi trùng lặp", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else if (ex.Number == 547) // Lỗi vi phạm CHECK constraint CK_NhaCungCap_Ngay
+                    {
+                        MessageBox.Show("Ngày hết hạn phải lớn hơn hoặc bằng Ngày cấp chứng nhận!", "Lỗi ràng buộc dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     else
                     {
