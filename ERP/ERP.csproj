@@ -109,10 +109,13 @@
     </Compile>
     <Compile Include="DucAnh\DTO\DonVanChuyen.cs" />
     <Compile Include="DucAnh\DTO\TraHang.cs" />
+    <Compile Include="DucAnh\DTO\PhieuTraHang.cs" />
     <Compile Include="DucAnh\DAL\DonVanChuyenDAL.cs" />
     <Compile Include="DucAnh\DAL\TraHangDAL.cs" />
+    <Compile Include="DucAnh\DAL\PhieuTraHangDAL.cs" />
     <Compile Include="DucAnh\BLL\DonVanChuyenBLL.cs" />
     <Compile Include="DucAnh\BLL\TraHangBLL.cs" />
+    <Compile Include="DucAnh\BLL\PhieuTraHangBLL.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuanLyDiemVanChuyen.cs">
