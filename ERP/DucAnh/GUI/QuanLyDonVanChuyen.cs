@@ -264,27 +264,15 @@ namespace ERP
                 string id = dgvData.CurrentRow.Cells["colID_DonVC"].Value?.ToString();
                 string statusHienTai = dgvData.CurrentRow.Cells["colTrangThaiDon"].Value?.ToString();
 
-                string statusMoi = "Đang vận chuyển";
-                if (statusHienTai == "Khởi tạo") statusMoi = "Đang vận chuyển";
-                else if (statusHienTai == "Đang vận chuyển") statusMoi = "Hoàn thành";
-                else if (statusHienTai == "Hoàn thành") statusMoi = "Đã hủy";
-                else if (statusHienTai == "Đã hủy") statusMoi = "Khởi tạo";
-
-                try
+                if (!string.IsNullOrEmpty(id))
                 {
-                    List<DonVanChuyen> all = bll.LayDanhSach();
-                    DonVanChuyen don = all.Find(d => d.ID_DonVC == id);
-                    if (don != null)
+                    using (FrmCapNhatTrangThai frm = new FrmCapNhatTrangThai(id, statusHienTai))
                     {
-                        don.TrangThaiDon = statusMoi;
-                        bll.SuaDon(don);
-                        MessageBox.Show($"Đã cập nhật trạng thái Đơn VC [{id}] sang: [{statusMoi}]", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadDataDonVanChuyen();
+                        if (frm.ShowDialog() == DialogResult.OK)
+                        {
+                            LoadDataDonVanChuyen();
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Lỗi cập nhật trạng thái: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else

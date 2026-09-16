@@ -95,6 +95,12 @@
     <Compile Include="FrmSuaDonVanChuyen.Designer.cs">
       <DependentUpon>FrmSuaDonVanChuyen.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmCapNhatTrangThai.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmCapNhatTrangThai.Designer.cs">
+      <DependentUpon>FrmCapNhatTrangThai.cs</DependentUpon>
+    </Compile>
     <Compile Include="DucAnh\GUI\QuanLyDonVanChuyen.cs">
       <SubType>Form</SubType>
     </Compile>
