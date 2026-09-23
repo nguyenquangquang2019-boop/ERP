@@ -41,10 +41,8 @@ namespace ERP
                 () => {
                     txtSearch.Text = "🔍 Tìm kiếm theo Mã, Tên nhà cung cấp, SĐT...";
                     txtSearch.ForeColor = Color.Gray;
-                    if (cmbTrangThai.Items.Count > 0) cmbTrangThai.SelectedIndex = 0;
                     LocDuLieu();
-                },
-                new FilterItem("Trạng thái:", this.cmbTrangThai, 180)
+                }
             );
 
             InitKpiPanel();
@@ -215,11 +213,6 @@ namespace ERP
         // ==========================================
 
         private void txtSearch_TextChanged(object sender, EventArgs e)
-        {
-            LocDuLieu();
-        }
-
-        private void cmbTrangThai_SelectedIndexChanged(object sender, EventArgs e)
         {
             LocDuLieu();
         }

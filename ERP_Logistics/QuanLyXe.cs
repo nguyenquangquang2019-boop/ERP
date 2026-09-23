@@ -41,17 +41,17 @@ namespace ERP
                 () => {
                     txtSearch.Text = "🔍 Tìm kiếm phương tiện, tài xế...";
                     txtSearch.ForeColor = Color.Gray;
-                    if (cboVehicleType.Items.Count > 0) cboVehicleType.SelectedIndex = 0;
                     if (cboStatus.Items.Count > 0) cboStatus.SelectedIndex = 0;
                     LocDuLieu();
                 },
-                new FilterItem("Loại xe:", this.cboVehicleType, 160),
                 new FilterItem("Trạng thái:", this.cboStatus, 160)
             );
 
+            // Đổ dữ liệu lên các filter từ database
+            LoadTrangThaiFilter();
+
             InitKpiPanel();
 
-            if (cboVehicleType.Items.Count > 0) cboVehicleType.SelectedIndex = 0;
             if (cboStatus.Items.Count > 0) cboStatus.SelectedIndex = 0;
 
             KhoiTaoCotBang();
@@ -200,6 +200,40 @@ namespace ERP
             UIThemeHelper.ApplyModernGridStyle(dgvData);
         }
 
+        // Đổ dữ liệu trạng thái xe lên filter combobox từ database
+        private void LoadTrangThaiFilter()
+        {
+            string query = "SELECT DISTINCT TrangThaiXe FROM PhuongTien WHERE TrangThaiXe IS NOT NULL ORDER BY TrangThaiXe ASC";
+
+            cboStatus.Items.Clear();
+            cboStatus.Items.Add("Tất cả trạng thái"); // Item mặc định
+
+            using (NpgsqlConnection conn = new NpgsqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    NpgsqlCommand cmd = new NpgsqlCommand(query, conn);
+
+                    using (NpgsqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string trangThai = reader["TrangThaiXe"].ToString();
+                            cboStatus.Items.Add(trangThai);
+                        }
+                    }
+
+                    if (cboStatus.Items.Count > 0)
+                        cboStatus.SelectedIndex = 0; // Chọn "Tất cả" mặc định
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi khi tải danh sách trạng thái: " + ex.Message, "Lỗi SQL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
         private void LoadDataXe()
         {
             // Truy vấn lấy dữ liệu chính xác từ bảng PhuongTien
@@ -233,11 +267,6 @@ namespace ERP
             LocDuLieu();
         }
 
-        private void cboVehicleType_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            LocDuLieu();
-        }
-
         private void cboStatus_SelectedIndexChanged(object sender, EventArgs e)
         {
             LocDuLieu();
@@ -256,13 +285,6 @@ namespace ERP
             if (!string.IsNullOrEmpty(keyword))
             {
                 filter += $" AND (BienSoXe LIKE '%{keyword}%' OR LoaiXe LIKE '%{keyword}%' OR TenTaiXe LIKE '%{keyword}%')";
-            }
-
-            // Lọc theo loại xe nếu ComboBox chọn loại xe cụ thể
-            if (cboVehicleType.SelectedIndex > 0)
-            {
-                string selectedType = cboVehicleType.SelectedItem.ToString();
-                filter += $" AND LoaiXe = '{selectedType}'";
             }
 
             // Lọc theo trạng thái xe

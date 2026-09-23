@@ -375,7 +375,6 @@
             this.cmbTrangThai.Name = "cmbTrangThai";
             this.cmbTrangThai.Size = new System.Drawing.Size(200, 29);
             this.cmbTrangThai.TabIndex = 4;
-            this.cmbTrangThai.SelectedIndexChanged += new System.EventHandler(this.cmbTrangThai_SelectedIndexChanged);
             // 
             // txtSearch
             // 

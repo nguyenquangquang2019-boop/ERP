@@ -384,7 +384,6 @@
             this.cboVehicleType.Name = "cboVehicleType";
             this.cboVehicleType.Size = new System.Drawing.Size(190, 29);
             this.cboVehicleType.TabIndex = 1;
-            this.cboVehicleType.SelectedIndexChanged += new System.EventHandler(this.cboVehicleType_SelectedIndexChanged);
             // 
             // txtSearch
             // 
