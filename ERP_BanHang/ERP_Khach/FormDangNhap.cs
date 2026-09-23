@@ -184,14 +184,13 @@ namespace ERP_Khach
                                     MessageBox.Show($"Đăng nhập thành công!\nMã NV: {idNV}\nHọ tên: {tenNV}\nChức vụ: {chucVu}\nQuyền: Cho phép truy cập Phân hệ Logistics.",
                                                     "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+                                    // Dùng Show() thay vì ShowDialog() để tránh tạo chuỗi Modal
+                                    // bị khoá bởi form đăng nhập. Nhờ vậy các màn hình con
+                                    // có thể tự do nhận focus khi người dùng điều hướng.
+                                    QuanLyNhaCungCap frmLogistics = new QuanLyNhaCungCap();
+                                    frmLogistics.FormClosed += (s, args) => this.Close();
                                     this.Hide();
-
-                                    using (QuanLyNhaCungCap frmLogistics = new QuanLyNhaCungCap())
-                                    {
-                                        frmLogistics.ShowDialog();
-                                    }
-
-                                    this.Close();
+                                    frmLogistics.Show();
                                 }
                                 else
                                 {

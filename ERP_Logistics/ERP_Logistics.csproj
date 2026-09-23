@@ -82,6 +82,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="UIThemeHelper.cs" />
+    <Compile Include="LogisticsHelper.cs" />
     <Compile Include="FrmSuaDiemVanChuyen.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -135,6 +137,12 @@
     </Compile>
     <Compile Include="FrmCapNhatTrangThai.Designer.cs">
       <DependentUpon>FrmCapNhatTrangThai.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmInPhieuVanDon.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmInPhieuVanDon.Designer.cs">
+      <DependentUpon>FrmInPhieuVanDon.cs</DependentUpon>
     </Compile>
     <Compile Include="QuanLyDonVanChuyen.cs">
       <SubType>Form</SubType>
