@@ -32,7 +32,7 @@ namespace ERP
             // Khách hàng / Đơn hàng Bán
             if (!string.IsNullOrWhiteSpace(don.ID_DH))
             {
-                lblValMaDH.Text = $"{don.ID_DH} (Liên kết phân hệ Bán Hàng)";
+                lblValMaDH.Text = $"{don.ID_DH}";
             }
             else
             {
